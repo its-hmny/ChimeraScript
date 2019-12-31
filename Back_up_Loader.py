@@ -6,9 +6,10 @@
 import pysftp
 
 homePath = "/home/hmny/" #Your initial path
-dirToUpload = ["Pictures", "Desktop/Projects", "Desktop/University", "Documents"]
-hostname = "-> YOUR SFMTP SERVER"
-myUsername = "-> YOUR USERNAME"
+destPath = "/public/hmny/Backup/" #The destinaion path on the server
+dirToUpload = ["Pictures", "Templates", "University", "Documents"]
+hostname = "pinkerton.cs.unibo.it"
+myUsername = "enea.guidi"
 
 
 def Back_up_Loader():
@@ -16,10 +17,13 @@ def Back_up_Loader():
 	
 	with pysftp.Connection(host=hostname, username=myUsername, password=myPassword) as sftp:
 		print("Connection established")
+		sftp.makedirs(destPath) #Creates the destination if it doesn't exist
+		sftp.chdir(destPath)
 
 		for up_dir in dirToUpload:
 			cwd = homePath + up_dir
-			sftp.put_r(cwd, "/public/hmny/Backup/")
+			sftp.makedirs(destPath + up_dir)
+			sftp.put_r(cwd, destPath + up_dir)
 			print(cwd + " has been uploaded")
 
 		sftp.close()
