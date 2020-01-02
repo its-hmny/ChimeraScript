@@ -1,6 +1,8 @@
-#EmptyDirRemover is a simple Python script used for deleting my old/empty folder. The script works recursivly from the input
-#directory to all the subdirectories and so on so use it only in directories where you're sure to not delete nothing important
-#Created by Enea Guidi on 20/09/2019. Please check the README.md for more informations
+"""
+EmptyDirRemover is a simple Python script used for deleting my old/empty folder. The script works recursivly from the input
+directory to all the subdirectories and so on so use it only in directories where you're sure to not delete nothing important
+Created by Enea Guidi on 20/09/2019. Please check the README.md for more informations
+"""
 
 import os,sys
 

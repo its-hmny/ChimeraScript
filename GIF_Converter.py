@@ -1,6 +1,7 @@
-#GIF_Converter is a simple script to convert a .mp4 file to a .gif file, more extension tipe to convert coming soon...
-#Created by Enea Guidi on 31/08/2019, please check the Readme.md for more information
-
+"""
+GIF_Converter is a simple script to convert a .mp4 file to a .gif file, more extension tipe to convert coming soon...
+Created by Enea Guidi on 31/08/2019, please check the Readme.md for more information.
+"""
 import imageio, os, sys
 
 #Takes the two path and then copies every frame of the video to the correspondant .gif file

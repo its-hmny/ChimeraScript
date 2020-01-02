@@ -1,7 +1,9 @@
-#Back_up_Loader is a simple Python scipt used to automate my regular backup upload to the university sftp server, this script 
-#works recursively so (as the example show) ypu only need to put the directory you want to upload and it will automate the 
-#process for you. PLEASE NOTE THAT THIS WON'T WORK ON WINDOWS (due to the use of \ instead of / in Windows terminal)
-# Created by Enea Guidi on 08/11/2019. Please check the README.md for more informations 
+"""
+Back_up_Loader is a simple Python scipt used to automate my regular backup upload to the university sftp server, this script 
+works recursively so (as the example show) ypu only need to put the directory you want to upload and it will automate the 
+process for you. PLEASE NOTE THAT THIS WON'T WORK ON WINDOWS (due to the use of \ instead of / in Windows terminal)
+Created by Enea Guidi on 08/11/2019. Please check the README.md for more informations 
+"""
 
 import pysftp
 
