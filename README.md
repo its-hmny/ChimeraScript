@@ -46,5 +46,5 @@ The script has no package dependeces.
 
 ## gitPuller
 gitPuller is a simple script that I use to keep up to date all my public/private/cloned/etc GitHub repos. It simply iterates
-within my projects folder and executes "git pull" in each of them. 
+within my projects folder and executes "git pull" in each of them. Also it clones all your starred and new repos...
 The script has no package dependencies.
