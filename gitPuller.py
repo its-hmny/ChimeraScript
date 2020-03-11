@@ -20,7 +20,7 @@ def existingRepoPuller():
         os.chdir(projectDirectory + project)
         # Pulls from origin, less verbosely as possible, returning confirmation
         os.system("git pull > /dev/null")
-        print("Pulled " + project + "from GitHub \n")
+        print("Pulled " + project + " from GitHub \n")
 
 def newRepoCloner():
     # Use GitHub API to get all my publicly hosted repositories as JSON
@@ -48,7 +48,7 @@ def starredRepoCloner():
         # If the current repo isn't in the project directory then clone it
         if not os.path.isdir(projectDirectory + starredRepo["name"]):
             os.system("git clone " + starredRepo["clone_url"])
-            print("Cloned your starred repo: " + repo["name"])
+            print("Cloned your starred repo: " + starredRepo["name"])
 
 
 def gitPuller():
