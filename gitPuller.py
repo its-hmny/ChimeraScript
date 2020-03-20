@@ -10,54 +10,46 @@ Created by Enea Guidi on 09/03/2020. Please check the README.md for more informa
 
 import os, requests
 
-projectDirectory = "/home/hmny/Templates/"
+projectDirectory = "/home/hmny/Projects/GitHub/"
+starredDirectory = "/home/hmny/Projects/Starred/"
 
 
-def existingRepoPuller():
+def existingRepoPuller(path):
     # Lists of all the projects in the given directory
-    for project in os.listdir(projectDirectory):
+    for project in os.listdir(path):
         # Changes the current working directory to the project one
-        os.chdir(projectDirectory + project)
+        os.chdir(path + project)
         # Pulls from origin, less verbosely as possible, returning confirmation
         os.system("git pull > /dev/null")
         print("Pulled " + project + " from GitHub \n")
 
+# Given the HTML response, the item list to scroll and the (eventual) message
+def cloneList(response, scroll_list, msg, path):
+    if response.status_code != 200:
+        raise ConnectionRefusedError
+    
+    os.chdir(path) # Updates direcotry to current path
+
+    for item in scroll_list:
+        if not os.path.isdir(path + item["name"]):
+            os.system("git clone " + item["clone_url"])
+            print(msg + item["name"])
+
 def newRepoCloner():
     # Use GitHub API to get all my publicly hosted repositories as JSON
     response = requests.get("https://api.github.com/search/repositories?q=user:its-hmny")
-    fullRepoList = response.json()
-    
-    if response.status_code != 200:
-        raise ConnectionRefusedError
-
-    for repo in fullRepoList["items"]:
-        # If the current repo isn't in the directory, clone it
-        if not os.path.isdir(projectDirectory + repo["name"]):
-            os.system("git clone " + repo["clone_url"])
-            print("Cloned your new repo: " + repo["name"])
+    cloneList(response, response.json()["items"], "Cloned your new repo: ", projectDirectory)
 
 def starredRepoCloner():
     # Uses GitHub API to get my starred repos and eventually clone them
     response = requests.get("https://api.github.com/users/its-hmny/starred")
-    starsList = response.json()
-    
-    if response.status_code != 200:
-        raise ConnectionRefusedError
-
-    for starredRepo in starsList[0:]:
-        # If the current repo isn't in the project directory then clone it
-        if not os.path.isdir(projectDirectory + starredRepo["name"]):
-            os.system("git clone " + starredRepo["clone_url"])
-            print("Cloned your starred repo: " + starredRepo["name"])
-
+    cloneList(response, response.json()[0:], "Cloned your starred repo: ", starredDirectory)
 
 def gitPuller():
     try:
         # Pulls the change from the existing project directory
-        existingRepoPuller()
-        
-        # CSets back the current working directory to the project root directory
-        os.chdir(projectDirectory)
+        existingRepoPuller(projectDirectory)
+        existingRepoPuller(starredDirectory)
         
         # Clones the repo that are not yet present in the folder
         newRepoCloner()
@@ -66,7 +58,7 @@ def gitPuller():
         starredRepoCloner()
     
     except FileNotFoundError:
-        print("Error project directory doesn't exist")
+        print("Error! The project directory doesn't exist")
 
     except ConnectionRefusedError:
         print("Error with the GitHub's API request")

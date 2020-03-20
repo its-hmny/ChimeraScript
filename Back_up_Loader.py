@@ -9,7 +9,7 @@ import pysftp
 
 homePath = "/home/hmny/" #Your initial path
 destPath = "/public/hmny/Backup/" #The destinaion path on the server
-dirToUpload = ["Pictures", "Templates", "University", "Documents"]
+dirToUpload = ["Pictures", "Projects", "University", "Documents"]
 hostname = "pinkerton.cs.unibo.it"
 myUsername = "enea.guidi"
 
