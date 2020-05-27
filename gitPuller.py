@@ -10,8 +10,8 @@ Created by Enea Guidi on 09/03/2020. Please check the README.md for more informa
 
 import os, requests
 
-projectDirectory = "/home/hmny/Projects/GitHub/"
-starredDirectory = "/home/hmny/Projects/Starred/"
+projectDirectory = "/home/hmny/Projects/"
+starredDirectory = "/home/hmny/Public/"
 
 
 def existingRepoPuller(path):

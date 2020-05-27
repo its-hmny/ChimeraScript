@@ -7,8 +7,9 @@ Created by Enea Guidi on 08/11/2019. Please check the README.md for more informa
 
 import pysftp
 
-homePath = "/home/hmny/" #Your initial path
-destPath = "/public/hmny/Backup/" #The destinaion path on the server
+homePath = "/home/hmny/" #Your initial path 
+destPath = "/public/hmny/" #The destinaion path on the server
+destFolder = destPath + "Backup/"
 dirToUpload = ["Pictures", "Projects", "University", "Documents"]
 hostname = "pinkerton.cs.unibo.it"
 myUsername = "enea.guidi"
@@ -19,13 +20,14 @@ def Back_up_Loader():
 	
 	with pysftp.Connection(host=hostname, username=myUsername, password=myPassword) as sftp:
 		print("Connection established")
-		sftp.makedirs(destPath) #Creates the destination if it doesn't exist
-		sftp.chdir(destPath)
+		sftp.makedirs(destFolder) #Creates the destination if it doesn't exist
+		sftp.chmod(destPath, mode=700)	#Private access to only owner	
+		sftp.chdir(destFolder)
 
 		for up_dir in dirToUpload:
 			cwd = homePath + up_dir
-			sftp.makedirs(destPath + up_dir)
-			sftp.put_r(cwd, destPath + up_dir)
+			sftp.makedirs(destFolder + up_dir)
+			sftp.put_r(cwd, destFolder + up_dir)
 			print(cwd + " has been uploaded")
 
 		sftp.close()
