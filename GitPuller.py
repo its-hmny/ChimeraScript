@@ -20,7 +20,7 @@ def existingRepoPuller(path):
         # Changes the current working directory to the project one
         os.chdir(path + project)
         # Pulls from origin, less verbosely as possible, returning confirmation
-        os.system("git pull > /dev/null")
+        os.system("git pull &> /dev/null")
         print("Pulled " + project + " from GitHub \n")
 
 # Given the HTML response, the item list to scroll and the (eventual) message

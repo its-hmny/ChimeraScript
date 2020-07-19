@@ -23,11 +23,17 @@ def recursiveClean(toClean):
 		
 
 def EmptyDirRemover():
-	startingDir = os.path.abspath(sys.argv[1])
-	if (os.path.isdir(startingDir)):
-		recursiveClean(startingDir)
-	else:
-		print("The input given is not a directory")
+	startingDir = ""
+	try:
+		startingDir = os.path.abspath(sys.argv[1])
+	except IndexError:
+		startingDir = "/home/hmny/"
+
+		if (os.path.isdir(startingDir)):
+			recursiveClean(startingDir)
+		else:
+			print("The input given is not a directory")
+	
 
 
 EmptyDirRemover()
