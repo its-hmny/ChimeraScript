@@ -1,5 +1,10 @@
 """
-GIF_Converter is a simple script to convert a .mp4 file to a .gif file, more extension tipe to convert coming soon...
+GIF_Converter is a simple script to convert a .mp4 or .mkv file to a .gif file, 
+more extension type to convert coming soon...
+
+Note: In order to work it relies on imageio as third party library,
+you can install with "pip3 install imageio" from command line
+
 Created by Enea Guidi on 31/08/2019, please check the Readme.md for more information.
 """
 

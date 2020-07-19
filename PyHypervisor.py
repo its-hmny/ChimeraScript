@@ -1,5 +1,5 @@
 """
-PyHypervisor: a script to rule them all, takes a list of script both from a JSON file or
+PyHypervisor: a script to rule them all. It takes a list of script both from a JSON file or
 from the argv vector (more on that later) and executes them concurrently and indipently from
 thing such as interpreter (shell, python3, etc) and permission. It will detect automatically 
 if shebang and permission are correct and eventually will try to execute manually.

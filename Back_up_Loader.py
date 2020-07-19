@@ -2,6 +2,9 @@
 Back_up_Loader is a simple Python scipt used to automate my regular backup upload to the university sftp server, this script 
 works recursively so (as the example show) you only need to put the directory you want to upload and it will automate the 
 process for you. PLEASE NOTE THAT THIS WON'T WORK ON WINDOWS (due to the use of \ instead of / in Windows terminal)
+
+Note: it requires pysftp as third party library, you can install it with "pip3 install pysftp"
+
 Created by Enea Guidi on 08/11/2019. Please check the README.md for more informations 
 """
 
