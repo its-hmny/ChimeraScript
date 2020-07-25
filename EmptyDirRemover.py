@@ -29,11 +29,10 @@ def EmptyDirRemover():
 	except IndexError:
 		startingDir = "/home/hmny/"
 
-		if (os.path.isdir(startingDir)):
-			recursiveClean(startingDir)
-		else:
-			print("The input given is not a directory")
-	
+	if (os.path.isdir(startingDir)):
+		recursiveClean(startingDir)
+	else:
+		print("The input given is not a directory")
 
 
 EmptyDirRemover()

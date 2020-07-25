@@ -12,8 +12,8 @@ Created by Enea Guidi on 09/03/2020. Please check the README.md for more informa
 
 import os, requests
 
-projectDirectory = "/home/hmny/Projects/"
-starredDirectory = "/home/hmny/Public/"
+projectDirectory = "/home/its-hmny/Projects/"
+starredDirectory = "/home/its-hmny/Public/"
 
 
 def existingRepoPuller(path):
@@ -24,6 +24,7 @@ def existingRepoPuller(path):
         # Pulls from origin, less verbosely as possible, returning confirmation
         os.system("git pull &> /dev/null")
         print("Pulled " + project + " from GitHub \n")
+
 
 # Given the HTML response, the item list to scroll and the (eventual) message
 def cloneList(response, scroll_list, msg, path):
@@ -37,15 +38,18 @@ def cloneList(response, scroll_list, msg, path):
             os.system("git clone " + item["clone_url"])
             print(msg + item["name"])
 
+
 def newRepoCloner():
     # Use GitHub API to get all my publicly hosted repositories as JSON
     response = requests.get("https://api.github.com/search/repositories?q=user:its-hmny")
     cloneList(response, response.json()["items"], "Cloned your new repo: ", projectDirectory)
 
+
 def starredRepoCloner():
     # Uses GitHub API to get my starred repos and eventually clone them
     response = requests.get("https://api.github.com/users/its-hmny/starred")
     cloneList(response, response.json()[0:], "Cloned your starred repo: ", starredDirectory)
+
 
 def gitPuller():
     try:
