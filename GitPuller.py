@@ -19,14 +19,19 @@ starredDirectory = "/home/its-hmny/Public/"
 def existingRepoPuller(path):
     # Lists of all the projects in the given directory
     for project in os.listdir(path):
-        # Changes the current working directory to the project one
-        os.chdir(path + project)
-        # Pulls from origin, less verbosely as possible, returning confirmation
-        os.system("git pull &> /dev/null")
-        print("Pulled " + project + " from GitHub \n")
+        try:
+            # Changes the current working directory to the project one
+            os.chdir(path + project)
+            # Pulls from origin, less verbosely as possible, returning confirmation
+            os.system("git pull &> /dev/null")
+            print("Pulled " + project + " from GitHub")
+        
+        except NotADirectoryError:
+            print(project + " is not a directory, skipped!")
 
 
-# Given the HTML response, the item list to scroll and the (eventual) message
+
+# Given the HTTP response, the item list to scroll and the (eventual) message
 def cloneList(response, scroll_list, msg, path):
     if response.status_code != 200:
         raise ConnectionRefusedError
@@ -40,7 +45,7 @@ def cloneList(response, scroll_list, msg, path):
 
 
 def newRepoCloner():
-    # Use GitHub API to get all my publicly hosted repositories as JSON
+    # Uses GitHub API to get all my publicly hosted repositories as JSON
     response = requests.get("https://api.github.com/search/repositories?q=user:its-hmny")
     cloneList(response, response.json()["items"], "Cloned your new repo: ", projectDirectory)
 

@@ -27,7 +27,7 @@ def EmptyDirRemover():
 	try:
 		startingDir = os.path.abspath(sys.argv[1])
 	except IndexError:
-		startingDir = "/home/hmny/"
+		startingDir = "/home/its-hmny/"
 
 	if (os.path.isdir(startingDir)):
 		recursiveClean(startingDir)
