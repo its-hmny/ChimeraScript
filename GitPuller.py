@@ -10,12 +10,19 @@ Note: that all the repositories are pulled so be aware of the risk (merge confli
 Created by Enea Guidi on 09/03/2020. Please check the README.md for more informations.
 """
 
-import os, requests
+import os, requests, platform
 from utility import Log
 
-projectDirectory = "/home/its-hmny/Projects/"
-starredDirectory = "/home/its-hmny/Public/"
 log = Log()
+# Platform specific fields
+if (platform.system() == "Windows"):
+	projectDirectory = "C:/Users/eneag/Desktop/Progetti/"
+	starredDirectory = "C:/Users/eneag/Desktop/Public/"
+elif (platfom.system() == "Linux"):
+    projectDirectory = "/home/its-hmny/Projects/"
+    starredDirectory = "/home/its-hmny/Public/"
+else: 
+    log.errorMsg("Unrecognized or unsupported OS")
 
 
 def existingRepoPuller(path):
@@ -24,8 +31,9 @@ def existingRepoPuller(path):
         try:
             # Changes the current working directory to the project one
             os.chdir(path + project)
+            print(os.getcwd())
             # Pulls from origin, less verbosely as possible, returning confirmation
-            os.system("git pull &> /dev/null")
+            os.system("git pull")
             log.successMsg("Pulled " + project + " from GitHub")
         
         except NotADirectoryError:

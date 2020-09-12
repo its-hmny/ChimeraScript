@@ -23,7 +23,7 @@ log = Log()
 # Platform specific fields
 if (platform.system() == "Windows"):
 	homePath = "C:/Users/eneag/"
-	dirToUpload = ["Pictures"]#, "Desktop/Progetti", "Desktop/Università", "Documenti"]
+	dirToUpload = ["Pictures", "Desktop/Progetti", "Desktop/Università", "Documenti"]
 elif (platform.system() == "Linux"):
 	homePath = "/home/hmny/"
 	dirToUpload = ["Pictures", "Projects", "University", "Documents"]
