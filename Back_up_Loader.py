@@ -5,20 +5,20 @@ process for you. PLEASE NOTE THAT THIS WON'T WORK ON WINDOWS (due to the use of 
 Created by Enea Guidi on 08/11/2019. Please check the README.md for more informations 
 """
 
-import pysftp
+import pysftp, getpass
 
 homePath = "/home/hmny/" #Your initial path 
 destPath = "/public/hmny/" #The destinaion path on the server
 destFolder = destPath + "Backup/"
 dirToUpload = ["Pictures", "Projects", "University", "Documents"]
 hostname = "pinkerton.cs.unibo.it"
-myUsername = "enea.guidi"
+usrnm = "enea.guidi"
 
 
 def Back_up_Loader():
-	myPassword = input("Please insert password: ")
+	pswd = getpass.getpass(prompt="Please insert password: ")
 	
-	with pysftp.Connection(host=hostname, username=myUsername, password=myPassword) as sftp:
+	with pysftp.Connection(host=hostname, username=usrnm, password=pswd) as sftp:
 		print("Connection established")
 		sftp.makedirs(destFolder) #Creates the destination if it doesn't exist
 		sftp.chmod(destPath, mode=700)	#Private access to only owner	
