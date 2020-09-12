@@ -11,9 +11,11 @@ Created by Enea Guidi on 09/03/2020. Please check the README.md for more informa
 """
 
 import os, requests
+from utility import Log
 
 projectDirectory = "/home/its-hmny/Projects/"
 starredDirectory = "/home/its-hmny/Public/"
+log = Log()
 
 
 def existingRepoPuller(path):
@@ -24,10 +26,10 @@ def existingRepoPuller(path):
             os.chdir(path + project)
             # Pulls from origin, less verbosely as possible, returning confirmation
             os.system("git pull &> /dev/null")
-            print("Pulled " + project + " from GitHub")
+            log.successMsg("Pulled " + project + " from GitHub")
         
         except NotADirectoryError:
-            print(project + " is not a directory, skipped!")
+            log.warningMsg(project + " is not a directory, skipped!")
 
 
 
@@ -41,7 +43,7 @@ def cloneList(response, scroll_list, msg, path):
     for item in scroll_list:
         if not os.path.isdir(path + item["name"]):
             os.system("git clone " + item["clone_url"])
-            print(msg + item["name"])
+            log.successMsg(msg + item["name"])
 
 
 def newRepoCloner():
@@ -69,10 +71,10 @@ def gitPuller():
         starredRepoCloner()
     
     except FileNotFoundError:
-        print("Error! The project directory doesn't exist")
+        log.errorMsg("Error! The project directory doesn't exist")
 
     except ConnectionRefusedError:
-        print("Error with the GitHub's API request")
+        log.errorMsg("Error with the GitHub's API request")
 
 
 gitPuller()

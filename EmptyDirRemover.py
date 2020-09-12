@@ -4,7 +4,8 @@ directory to all the subdirectories and so on so use it only in directories wher
 Created by Enea Guidi on 20/09/2019. Please check the README.md for more informations
 """
 
-import os,sys
+import os, sys
+from utility import Log
 
 def recursiveClean(toClean):
 	#List of all the path inside the current directory
@@ -24,6 +25,8 @@ def recursiveClean(toClean):
 
 def EmptyDirRemover():
 	startingDir = ""
+	log = Log()
+
 	try:
 		startingDir = os.path.abspath(sys.argv[1])
 	except IndexError:
@@ -32,7 +35,7 @@ def EmptyDirRemover():
 	if (os.path.isdir(startingDir)):
 		recursiveClean(startingDir)
 	else:
-		print("The input given is not a directory")
+		log.errorMsg("The input given is not a directory")
 
 
 EmptyDirRemover()

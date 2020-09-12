@@ -21,6 +21,7 @@ Created by Enea Guidi on 18/07/2020. Please check the README.md for more informa
 """
 
 import os, sys, json
+from utility import Log
 
 subprocessPid = []
 
@@ -80,6 +81,8 @@ def loadScriptFromJSON():
 
 
 def PyHypervisor():
+    log = Log()
+
     if sys.argv[1] == "-l":
         loadScriptFromArray(sys.argv[2:])
     
@@ -87,16 +90,21 @@ def PyHypervisor():
         loadScriptFromJSON()
     
     else:
-        print("Usage: python3 PyHypervisor.py [option] [input] [JSON_subclass]")
-        print("Option: -l to execute script from argv[], -j to execute script grouped in a JSON file")
-        print("Input: the list of script to execute (-l) or the JSON file (-j)")
-        print("Only for JSON file you can name groups each with their own scripts")
-        print("and select only one of them to be executed, else every group will be executed")    
+        log.warningMsg(
+            """
+            Usage: python3 PyHypervisor.py [option] [input] [JSON_subclass]
+            Option: -l to execute script from argv[], -j to execute script grouped in a JSON file
+            Input: the list of script to execute (-l) or the JSON file (-j)
+            Only for JSON file you can name groups each with their own scripts
+            and select only one of them to be executed, else every group will be executed
+            """ 
+        )
+        os._exit(EX_OK)
 
     for pid in subprocessPid:
         os.waitpid(pid, 0)
 
-    print("No script scheduled for execution") if subprocessPid == [] else  print("---> All task completed")
+    log.errorMsg("No script scheduled for execution") if subprocessPid == [] else log.successMsg("---> All task completed")
 
 
 PyHypervisor()

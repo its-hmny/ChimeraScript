@@ -8,35 +8,50 @@ Note: it requires pysftp as third party library, you can install it with "pip3 i
 Created by Enea Guidi on 08/11/2019. Please check the README.md for more informations 
 """
 
-import pysftp, getpass, platform, os, paramiko
-from pathlib import Path
+import pysftp, getpass, platform, os
+from paramiko.ssh_exception import AuthenticationException
+from utility import Log
 
 # Fixed fields for every OS (platform indipendent)
 destPath = "/public/hmny/" # The destinaion path on the server
 destFolder = destPath + "Backup/"
-homePath = Path.home()
 hostname = "pinkerton.cs.unibo.it"
 usrnm = "enea.guidi"
 
-success = "\033[92m"
-error = "\033[91m"
-clear = "\033[0m"
+log = Log()
 
 # Platform specific fields
 if (platform.system() == "Windows"):
-	dirToUpload = ["Immagini", "Desktop/Progetti", "Desktop/Università", "Documenti"]
+	homePath = "C:/Users/eneag/"
+	dirToUpload = ["Pictures"]#, "Desktop/Progetti", "Desktop/Università", "Documenti"]
 elif (platform.system() == "Linux"):
+	homePath = "/home/hmny/"
 	dirToUpload = ["Pictures", "Projects", "University", "Documents"]
 else:
-	print(fail + "This OS is not supported yet" + clear)
+	log.errorMsg("This OS is not supported yet")
 	os._exit(os.EX_OSERR)
+
+
+def recursivePut(sftpConnection, toUpload, destination):
+	for entry in os.listdir(toUpload):
+		local = os.path.join(toUpload, entry)
+		remote = destination + "/" + entry
+		
+		if os.path.isdir(local):
+			sftpConnection.makedirs(remote)
+			recursivePut(sftpConnection, local, remote)
+			continue
+		elif os.path.islink(local):
+			continue
+		
+		sftpConnection.put(local, remote)
 
 
 def Back_up_Loader():
 	pswd = getpass.getpass(prompt="Please insert password: ")
 	try:
 		with pysftp.Connection(host=hostname, username=usrnm, password=pswd) as sftp:
-			print("Connection established")
+			log.warningMsg("Connection established")
 			# Creates the destination if it doesn't exist
 			sftp.makedirs(destFolder)
 			# Private access to only owner
@@ -44,15 +59,16 @@ def Back_up_Loader():
 			sftp.chdir(destFolder)
 
 			for up_dir in dirToUpload:
-				cwd = homePath / up_dir
-				sftp.makedirs(destFolder + up_dir.split("/")[-1])
-				#sftp.put_r(cwd, destFolder + up_dir)
-				print(success + str(cwd) + " has been uploaded" + clear)
+				cwd = homePath + up_dir
+				remote_cwd = destFolder + up_dir.split("/")[-1]
+				sftp.makedirs(remote_cwd)
+				recursivePut(sftp, cwd, remote_cwd)
+				log.successMsg(cwd + " has been uploaded")
 
 			sftp.close()
 
-	except paramiko.ssh_exception.AuthenticationException:
-		print(error + "Authentication failed, username or password invalid" + clear)
+	except AuthenticationException:
+		log.errorMsg("Authentication failed, username or password invalid")
 
 
 Back_up_Loader()

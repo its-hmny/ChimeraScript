@@ -5,6 +5,7 @@ Created by Enea Guidi on 1/1/20. Please check the README.md for further informat
 """
 
 import os
+from utility import Log
 
 homePath = "/home/its-hmny/"
 dirsToClean = [".cache", "Downloads", "Temporary", "Public"]
@@ -25,6 +26,8 @@ def wipeDir(path):
 
 
 def garbageCleaner():
+    log = Log()
+
     for directory in dirsToClean:
         #Setting up the Current Cleaning Directory
         ccd = homePath + directory
@@ -32,9 +35,10 @@ def garbageCleaner():
         #Ignored the case of an already empty directory (warning given to user)
         if os.path.isdir(ccd) and os.listdir(ccd) != []:
             wipeDir(ccd)
-            print("Cleaned " + ccd)
+            log.successMsg("Cleaned " + ccd)
         
         else:
-            print(ccd + " not found or already empty")
+            log.warningMsg(ccd + " not found or already empty")
+
 
 garbageCleaner()
