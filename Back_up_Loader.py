@@ -8,34 +8,51 @@ Note: it requires pysftp as third party library, you can install it with "pip3 i
 Created by Enea Guidi on 08/11/2019. Please check the README.md for more informations 
 """
 
-import pysftp, getpass
+import pysftp, getpass, platform, os, paramiko
+from pathlib import Path
 
-homePath = "/home/its-hmny/" # Your initial path 
+# Fixed fields for every OS (platform indipendent)
 destPath = "/public/hmny/" # The destinaion path on the server
 destFolder = destPath + "Backup/"
-dirToUpload = ["Pictures", "Projects", "University", "Documents"]
+homePath = Path.home()
 hostname = "pinkerton.cs.unibo.it"
 usrnm = "enea.guidi"
+
+success = "\033[92m"
+error = "\033[91m"
+clear = "\033[0m"
+
+# Platform specific fields
+if (platform.system() == "Windows"):
+	dirToUpload = ["Immagini", "Desktop/Progetti", "Desktop/Università", "Documenti"]
+elif (platform.system() == "Linux"):
+	dirToUpload = ["Pictures", "Projects", "University", "Documents"]
+else:
+	print(fail + "This OS is not supported yet" + clear)
+	os._exit(os.EX_OSERR)
 
 
 def Back_up_Loader():
 	pswd = getpass.getpass(prompt="Please insert password: ")
-	
-	with pysftp.Connection(host=hostname, username=usrnm, password=pswd) as sftp:
-		print("Connection established")
-		# Creates the destination if it doesn't exist
-		sftp.makedirs(destFolder)
-		# Private access to only owner
-		sftp.chmod(destPath, mode=700)	
-		sftp.chdir(destFolder)
+	try:
+		with pysftp.Connection(host=hostname, username=usrnm, password=pswd) as sftp:
+			print("Connection established")
+			# Creates the destination if it doesn't exist
+			sftp.makedirs(destFolder)
+			# Private access to only owner
+			sftp.chmod(destPath, mode=700)	
+			sftp.chdir(destFolder)
 
-		for up_dir in dirToUpload:
-			cwd = homePath + up_dir
-			sftp.makedirs(destFolder + up_dir)
-			sftp.put_r(cwd, destFolder + up_dir)
-			print(cwd + " has been uploaded")
+			for up_dir in dirToUpload:
+				cwd = homePath / up_dir
+				sftp.makedirs(destFolder + up_dir.split("/")[-1])
+				#sftp.put_r(cwd, destFolder + up_dir)
+				print(success + str(cwd) + " has been uploaded" + clear)
 
-		sftp.close()
+			sftp.close()
+
+	except paramiko.ssh_exception.AuthenticationException:
+		print(error + "Authentication failed, username or password invalid" + clear)
 
 
 Back_up_Loader()
