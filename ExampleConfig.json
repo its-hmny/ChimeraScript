@@ -1,0 +1,17 @@
+{
+    "Creator": "Enea Guidi",
+    "License": "GNU Public License v. 3.0",
+    "ScriptGroups": 
+    [
+        {
+            "GroupName": "Update",
+            "ScriptList": ["GitPuller.py", "Update.sh"]
+        }, 
+
+        {
+            "GroupName": "Cleaning",
+            "ScriptList": ["EmptyDirRemover.py", "GarbageCleaner.py"]
+        }
+    ]
+
+}

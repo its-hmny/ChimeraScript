@@ -4,26 +4,34 @@ working on (mine as well as other's) keeping me always up to date with the origi
 to make it less verbose as possible but there will be some warnings and/or authentication request,
 especially for private repositories. Also it clones all the repositories that currently aren't in
 the projectDirectory folder as well as all your starred repositories that aren't already cloned.
-Note that all the repositories are pulled so be aware of the risk (merge conflict and so on...).  
+
+Note: that all the repositories are pulled so be aware of the risk (merge conflict and so on...).  
+
 Created by Enea Guidi on 09/03/2020. Please check the README.md for more informations.
 """
 
 import os, requests
 
-projectDirectory = "/home/hmny/Projects/"
-starredDirectory = "/home/hmny/Public/"
+projectDirectory = "/home/its-hmny/Projects/"
+starredDirectory = "/home/its-hmny/Public/"
 
 
 def existingRepoPuller(path):
     # Lists of all the projects in the given directory
     for project in os.listdir(path):
-        # Changes the current working directory to the project one
-        os.chdir(path + project)
-        # Pulls from origin, less verbosely as possible, returning confirmation
-        os.system("git pull > /dev/null")
-        print("Pulled " + project + " from GitHub \n")
+        try:
+            # Changes the current working directory to the project one
+            os.chdir(path + project)
+            # Pulls from origin, less verbosely as possible, returning confirmation
+            os.system("git pull &> /dev/null")
+            print("Pulled " + project + " from GitHub")
+        
+        except NotADirectoryError:
+            print(project + " is not a directory, skipped!")
 
-# Given the HTML response, the item list to scroll and the (eventual) message
+
+
+# Given the HTTP response, the item list to scroll and the (eventual) message
 def cloneList(response, scroll_list, msg, path):
     if response.status_code != 200:
         raise ConnectionRefusedError
@@ -35,15 +43,18 @@ def cloneList(response, scroll_list, msg, path):
             os.system("git clone " + item["clone_url"])
             print(msg + item["name"])
 
+
 def newRepoCloner():
-    # Use GitHub API to get all my publicly hosted repositories as JSON
+    # Uses GitHub API to get all my publicly hosted repositories as JSON
     response = requests.get("https://api.github.com/search/repositories?q=user:its-hmny")
     cloneList(response, response.json()["items"], "Cloned your new repo: ", projectDirectory)
+
 
 def starredRepoCloner():
     # Uses GitHub API to get my starred repos and eventually clone them
     response = requests.get("https://api.github.com/users/its-hmny/starred")
     cloneList(response, response.json()[0:], "Cloned your starred repo: ", starredDirectory)
+
 
 def gitPuller():
     try:

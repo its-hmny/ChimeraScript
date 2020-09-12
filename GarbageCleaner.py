@@ -6,7 +6,7 @@ Created by Enea Guidi on 1/1/20. Please check the README.md for further informat
 
 import os
 
-homePath = "/home/hmny/"
+homePath = "/home/its-hmny/"
 dirsToClean = [".cache", "Downloads", "Temporary", "Public"]
 
 def wipeDir(path):
