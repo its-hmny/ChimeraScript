@@ -1,6 +1,11 @@
+"""
+This utility module containes two basics class that are used all over this project.
+The Log class is a basic wrapper to print function, it has also the option to set personal codes.
+The Compressor class implements a simple zip archiver (in future maybe I will implement a more efficient implementation),
+it has some operator overloads to keep code simple.
+"""
 
 import zipfile, os
-
 
 class Log():
     def __init__(self, success="\033[92m", error="\033[91m", warning="\033[93m"):
@@ -19,10 +24,11 @@ class Log():
         print("{}{}{}".format(self.warningCode, msg, self.clearCode))
 
 
-
 class Compressor():
-    def __init__(self, filename="dump.zip"):
+    def __init__(self, filename="dump.zip", tmp=False):
         self.dump = zipfile.ZipFile(filename, "w", zipfile.ZIP_DEFLATED)
+        self.location = filename
+        self.isTemporary = tmp
 
     def compressDir(self, source_dir):
         if os.path.isdir(source_dir) and self.dump != None:
@@ -50,16 +56,40 @@ class Compressor():
         else:
             raise FileNotFoundError
 
+    def __bool__(self):
+        return self.dump != None
 
+    def __lshift__(self, other):
+        if os.path.isfile(other):
+            self.compressFile(other)
+        elif os.path.isdir(other):
+            self.compressDir(other)
+        else:
+            raise TypeError("Invalid argument, check that the path is correct or that a path string was given")
 
+    def __add__(self, other):
+        self.__lshift__(other)
+
+    def __del__(self):
+        self.dump.close()
+        if self.isTemporary:
+            os.remove(self.location)
+
+        
+
+# Test part
 if __name__ == "__main__":
     log = Log()
     log.error("This is an error message")
     log.warning("This is an warning message")
     log.success("This is an success message")
 
-    dump = Compressor("test.zip")
-    dump.compressDir(".")
-    dump.compressDir("../BiKayaOS")
-    dump.compressFile("utility.py")
-    dump.compressFile("utility.py", "BiKayaOS/")
+    dump = Compressor("test.zip", tmp=True)
+    if dump:
+        dump.compressDir(".")
+        dump.compressDir("../BiKayaOS")
+        dump.compressFile("utility.py")
+        dump.compressFile("utility.py", "BiKayaOS/")
+        dump + "../HackAssembler"
+        dump << "GitPuller.py"
+        del dump
