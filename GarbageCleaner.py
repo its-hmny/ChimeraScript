@@ -35,10 +35,10 @@ def garbageCleaner():
         #Ignored the case of an already empty directory (warning given to user)
         if os.path.isdir(ccd) and os.listdir(ccd) != []:
             wipeDir(ccd)
-            log.successMsg("Cleaned " + ccd)
+            log.success("Cleaned " + ccd)
         
         else:
-            log.warningMsg(ccd + " not found or already empty")
+            log.warning(ccd + " not found or already empty")
 
 
 garbageCleaner()

@@ -28,7 +28,7 @@ elif (platform.system() == "Linux"):
 	homePath = "/home/hmny/"
 	dirToUpload = ["Pictures", "Projects", "University", "Documents"]
 else:
-	log.errorMsg("This OS is not supported yet")
+	log.error("This OS is not supported yet")
 	os._exit(os.EX_OSERR)
 
 
@@ -51,7 +51,7 @@ def Back_up_Loader():
 	pswd = getpass.getpass(prompt="Please insert password: ")
 	try:
 		with pysftp.Connection(host=hostname, username=usrnm, password=pswd) as sftp:
-			log.warningMsg("Connection established")
+			log.warning("Connection established")
 			# Creates the destination if it doesn't exist
 			sftp.makedirs(destFolder)
 			# Private access to only owner
@@ -63,12 +63,12 @@ def Back_up_Loader():
 				remote_cwd = destFolder + up_dir.split("/")[-1]
 				sftp.makedirs(remote_cwd)
 				recursivePut(sftp, cwd, remote_cwd)
-				log.successMsg(cwd + " has been uploaded")
+				log.success(cwd + " has been uploaded")
 
 			sftp.close()
 
 	except AuthenticationException:
-		log.errorMsg("Authentication failed, username or password invalid")
+		log.error("Authentication failed, username or password invalid")
 
 
 Back_up_Loader()

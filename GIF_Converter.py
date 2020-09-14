@@ -29,16 +29,16 @@ def GIF_Converter():
 	try:
 		inputPath= os.path.abspath(sys.argv[1])
 		inputExtension = os.path.splitext(inputPath)[1]
-		log.successMsg('Converting....')
+		log.success('Converting....')
 
 		if(inputExtension == '.mp4') or (inputExtension == '.mkv'):
 			outputPath = os.path.splitext(inputPath)[0] + '.gif'
 			video_to_Gif(inputPath, outputPath)
-			log.successMsg('Done!')
+			log.success('Done!')
 		else: 
-			log.errorMsg("Unsupported file type")
+			log.error("Unsupported file type")
 	
 	except IndexError:
-		log.warningMsg("Need the path to file")
+		log.warning("Need the path to file")
 
 GIF_Converter()

@@ -22,7 +22,7 @@ elif (platfom.system() == "Linux"):
     projectDirectory = "/home/its-hmny/Projects/"
     starredDirectory = "/home/its-hmny/Public/"
 else: 
-    log.errorMsg("Unrecognized or unsupported OS")
+    log.error("Unrecognized or unsupported OS")
 
 
 def existingRepoPuller(path):
@@ -34,10 +34,10 @@ def existingRepoPuller(path):
             print(os.getcwd())
             # Pulls from origin, less verbosely as possible, returning confirmation
             os.system("git pull")
-            log.successMsg("Pulled " + project + " from GitHub")
+            log.success("Pulled " + project + " from GitHub")
         
         except NotADirectoryError:
-            log.warningMsg(project + " is not a directory, skipped!")
+            log.warning(project + " is not a directory, skipped!")
 
 
 
@@ -51,7 +51,7 @@ def cloneList(response, scroll_list, msg, path):
     for item in scroll_list:
         if not os.path.isdir(path + item["name"]):
             os.system("git clone " + item["clone_url"])
-            log.successMsg(msg + item["name"])
+            log.success(msg + item["name"])
 
 
 def newRepoCloner():
@@ -79,10 +79,10 @@ def gitPuller():
         starredRepoCloner()
     
     except FileNotFoundError:
-        log.errorMsg("Error! The project directory doesn't exist")
+        log.error("Error! The project directory doesn't exist")
 
     except ConnectionRefusedError:
-        log.errorMsg("Error with the GitHub's API request")
+        log.error("Error with the GitHub's API request")
 
 
 gitPuller()

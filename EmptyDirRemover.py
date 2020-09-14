@@ -35,7 +35,7 @@ def EmptyDirRemover():
 	if (os.path.isdir(startingDir)):
 		recursiveClean(startingDir)
 	else:
-		log.errorMsg("The input given is not a directory")
+		log.error("The input given is not a directory")
 
 
 EmptyDirRemover()

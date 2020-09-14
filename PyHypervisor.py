@@ -90,7 +90,7 @@ def PyHypervisor():
         loadScriptFromJSON()
     
     else:
-        log.warningMsg(
+        log.warning(
             """
             Usage: python3 PyHypervisor.py [option] [input] [JSON_subclass]
             Option: -l to execute script from argv[], -j to execute script grouped in a JSON file
@@ -104,7 +104,7 @@ def PyHypervisor():
     for pid in subprocessPid:
         os.waitpid(pid, 0)
 
-    log.errorMsg("No script scheduled for execution") if subprocessPid == [] else log.successMsg("---> All task completed")
+    log.error("No script scheduled for execution") if subprocessPid == [] else log.success("---> All task completed")
 
 
 PyHypervisor()
