@@ -48,7 +48,7 @@ class Compressor():
             raise NotADirectoryError
 
     def compressFile(self, file, path="./"):
-        if os.path.isfile(file):
+        if os.path.isfile(file) and self.dump != None:
             # Get abspath of the parent directory of source_dir
             abspath = os.path.abspath(os.path.join(file, os.pardir))
             # Then writes the file in the desired place
@@ -70,9 +70,6 @@ class Compressor():
         else:
             raise TypeError("Invalid argument, check that the path is correct or that a path string was given")
 
-    def __add__(self, other):
-        self.__lshift__(other)
-
     def __del__(self):
         self.dump.close()
         if self.isTemporary:
@@ -80,24 +77,38 @@ class Compressor():
 
         
 
-# Test part
+# Test section
 if __name__ == "__main__":
     log = Log()
+    print("\nTest Log class...")
     log.error("This is an error message")
     log.warning("This is an warning message")
     log.success("This is an success message")
 
-    dump = Compressor("test.zip", tmp=True)
-    if dump:
-        dump.compressDir(".")
-        dump.compressDir("../BiKayaOS")
-        dump.compressFile("utility.py")
-        dump.compressFile("utility.py", "BiKayaOS/")
-        dump + "../HackAssembler"
-        dump << "GitPuller.py"
+    print("\nTest Compressor class...")
+    dump = Compressor("test.zip", True)
+    if not dump:
+        log.error("Dump couldn't be initialized")
+
+    log.warning("Compressing some random files to test Compressor")
+    dump.compressDir(".")
+    dump.compressDir("../BiKayaOS")
+    dump.compressFile("utility.py")
+    dump.compressFile("utility.py", "BiKayaOS/")
+    dump << "GitPuller.py"
+    log.success("Completed random file compression")
+
+    log.warning("Running some checks on the archive...")
+    try:
         testOutcome = dump.runChecks()
-        if testOutcome != None:
-            log.success("Compression successful")
-        else:
-            log.error("Here's a list of files bad compressed: {}".format())
-        del dump
+    except RuntimeError:
+        log.error("Seems like the dump is closed")
+    if testOutcome == None:
+        log.success("No file result damaged")
+    else:
+        log.error("Here's a list of files badly compressed: {}".format(testOutcome))
+
+    log.warning("Closing the archive, this will delete it")
+    del dump
+    if os.path.isfile("test.zip"):
+        log.error("The test dump is still here!")
