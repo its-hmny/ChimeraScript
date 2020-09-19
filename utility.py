@@ -26,7 +26,7 @@ class Log():
 
 class Compressor():
     def __init__(self, filename="dump.zip", tmp=False):
-        self.dump = zipfile.ZipFile(filename, "w", zipfile.ZIP_DEFLATED)
+        self.dump = zipfile.ZipFile(filename, "w", zipfile.ZIP_DEFLATED, True)
         self.location = filename
         self.isTemporary = tmp
 
@@ -55,6 +55,9 @@ class Compressor():
             self.dump.write(os.path.relpath(file, abspath), path + file)
         else:
             raise FileNotFoundError
+
+    def runChecks(self):
+        return self.dump.testzip()
 
     def __bool__(self):
         return self.dump != None
@@ -92,4 +95,9 @@ if __name__ == "__main__":
         dump.compressFile("utility.py", "BiKayaOS/")
         dump + "../HackAssembler"
         dump << "GitPuller.py"
+        testOutcome = dump.runChecks()
+        if testOutcome != None:
+            log.success("Compression successful")
+        else:
+            log.error("Here's a list of files bad compressed: {}".format())
         del dump

@@ -8,9 +8,10 @@ Note: it requires pysftp as third party library, you can install it with "pip3 i
 Created by Enea Guidi on 08/11/2019. Please check the README.md for more informations 
 """
 
-import pysftp, getpass, platform, os
+import pysftp, getpass, platform, os, sys
 from paramiko.ssh_exception import AuthenticationException
-from utility import Log
+from paramiko.ssh_exception import SSHException
+from utility import Log, Compressor
 
 # Fixed fields for every OS (platform indipendent)
 destPath = "/public/hmny/" # The destinaion path on the server
@@ -31,7 +32,6 @@ else:
 	log.error("This OS is not supported yet")
 	os._exit(os.EX_OSERR)
 
-
 def recursivePut(sftpConnection, toUpload, destination):
 	for entry in os.listdir(toUpload):
 		local = os.path.join(toUpload, entry)
@@ -46,29 +46,68 @@ def recursivePut(sftpConnection, toUpload, destination):
 		
 		sftpConnection.put(local, remote)
 
+def uncompressedUpload(sftp):
+	# Creates the destination if it doesn't exist
+	sftp.makedirs(destFolder)
+	# Private access to only owner
+	sftp.chmod(destPath, mode=700)	
+	sftp.chdir(destFolder)
+
+	for up_dir in dirToUpload:
+		cwd = homePath + up_dir
+		remote_cwd = destFolder + up_dir.split("/")[-1]
+		sftp.makedirs(remote_cwd)
+		recursivePut(sftp, cwd, remote_cwd)
+		log.success(cwd + " has been uploaded")
+
+def compressedUpload(sftp):
+	# Put all the desired directory in a compressed file
+	dump = Compressor("Backup.zip")
+	for up_dir in dirToUpload:
+		dump << up_dir
+	
+	if dump.runChecks() != None:
+		log.error("Test on the compressed archive returned errors")
+		os._exit(os.EX_OSERR)
+	
+	del dump
+
+	# Creates the destination path with the correct attributes
+	sftp.makedirs(destPath)
+	sftp.chmod(destPath, mode=700)	
+	sftp.chdir(destPath)
+
+	sftp.put("Backup.zip", destPath)
 
 def Back_up_Loader():
-	pswd = getpass.getpass(prompt="Please insert password: ")
 	try:
+		mode = sys.argv[1]
+		pswd = getpass.getpass(prompt="Please insert password: ")
 		with pysftp.Connection(host=hostname, username=usrnm, password=pswd) as sftp:
 			log.warning("Connection established")
-			# Creates the destination if it doesn't exist
-			sftp.makedirs(destFolder)
-			# Private access to only owner
-			sftp.chmod(destPath, mode=700)	
-			sftp.chdir(destFolder)
-
-			for up_dir in dirToUpload:
-				cwd = homePath + up_dir
-				remote_cwd = destFolder + up_dir.split("/")[-1]
-				sftp.makedirs(remote_cwd)
-				recursivePut(sftp, cwd, remote_cwd)
-				log.success(cwd + " has been uploaded")
+			
+			if mode == "--compressed" or mode == "-c":
+				compressedUpload(sftp)
+			elif mode == "--uncompressed" or mode == "-u":
+				uncompressedUpload(sftp)
+			else:
+				log.error("Unrecognized arg: {}".format(mode))
 
 			sftp.close()
 
 	except AuthenticationException:
 		log.error("Authentication failed, username or password invalid")
+
+	except SSHException:
+		log.error("Could not connect to the host")
+
+	except IndexError:
+		log.warning("""
+			You should provide an additional argument: python3 Back_UP_Loader.py [mode]
+			where mode could be:
+			  -c or --compressed     to upload a compressed dump of all the directories
+			  -u or --uncompressed   to upload the directories themselves without any type of compression
+			""")
 
 
 Back_up_Loader()
