@@ -18,9 +18,9 @@ log = Log()
 if (platform.system() == "Windows"):
 	projectDirectory = "C:/Users/eneag/Desktop/Progetti/"
 	starredDirectory = "C:/Users/eneag/Desktop/Public/"
-elif (platfom.system() == "Linux"):
-    projectDirectory = "/home/its-hmny/Projects/"
-    starredDirectory = "/home/its-hmny/Public/"
+elif (platform.system() == "Linux"):
+    projectDirectory = "/home/hmny/Projects/"
+    starredDirectory = "/home/hmny/Public/"
 else: 
     log.error("Unrecognized or unsupported OS")
 
@@ -31,7 +31,6 @@ def existingRepoPuller(path):
         try:
             # Changes the current working directory to the project one
             os.chdir(path + project)
-            print(os.getcwd())
             # Pulls from origin, less verbosely as possible, returning confirmation
             os.system("git pull")
             log.success("Pulled " + project + " from GitHub")
