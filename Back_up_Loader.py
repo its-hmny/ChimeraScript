@@ -63,12 +63,13 @@ def uncompressedUpload(sftp):
 
 def compressedUpload(sftp):
 	# Put all the desired directory in a compressed file
-	dump = Compressor("Backup.zip")
+	dump = Compressor(homePath + "Backup.zip")
 	for up_dir in dirToUpload:
-		dump.compressDir(up_dir, blacklist=dirBlacklist)
+		dump.compressDir(homePath + up_dir, blacklist=dirBlacklist)
+		log.success("{} compressed".format(up_dir))
 	
-	if dump.runChecks() != None:
-		log.error("Test on the compressed archive returned errors")
+	if errors := dump.runChecks():
+		log.error("Test on the compressed archive returned errors: {}".format(errors))
 	
 	del dump
 
@@ -77,7 +78,8 @@ def compressedUpload(sftp):
 	sftp.chmod(destPath, mode=700)	
 	sftp.chdir(destPath)
 
-	sftp.put("Backup.zip", destPath)
+	sftp.put(homePath + "Backup.zip", destPath)
+	os.remove(homePath + "Backup.zip")
 
 def Back_up_Loader():
 	try:

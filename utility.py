@@ -36,6 +36,7 @@ class Compressor():
             abspath = os.path.abspath(os.path.join(source_dir, os.pardir))
             # Iterates through directories and files in source_dir adding all recursively
             for root, dirs, files in os.walk(source_dir):
+                dirs[:] = [d for d in dirs if d not in blacklist]
                 # Create the current directory in the dump
                 self.dump.write(root, os.path.relpath(root, abspath))
                 # Then puts all the files contained in the newly created directory
@@ -86,13 +87,13 @@ if __name__ == "__main__":
     log.success("This is an success message")
 
     print("\nTest Compressor class...")
-    dump = Compressor("test.zip", True)
+    dump = Compressor("test.zip", False)
     if not dump:
         log.error("Dump couldn't be initialized")
 
     log.warning("Compressing some random files to test Compressor")
     dump.compressDir(".")
-    dump.compressDir("../BiKayaOS")
+    dump.compressDir("../BiKayaOS", blacklist=["generics"])
     dump.compressFile("utility.py")
     dump.compressFile("utility.py", "BiKayaOS/")
     dump << "GitPuller.py"
