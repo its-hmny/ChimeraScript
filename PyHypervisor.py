@@ -99,7 +99,7 @@ def PyHypervisor():
             and select only one of them to be executed, else every group will be executed
             """ 
         )
-        os._exit(EX_OK)
+        os._exit(os.EX_OK)
 
     for pid in subprocessPid:
         os.waitpid(pid, 0)

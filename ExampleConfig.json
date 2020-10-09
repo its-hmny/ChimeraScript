@@ -11,6 +11,11 @@
         {
             "GroupName": "Cleaning",
             "ScriptList": ["EmptyDirRemover.py", "GarbageCleaner.py"]
+        },
+
+        {
+            "GroupName": "Backup",
+            "ScriptList": ["Back_up_Loader.py"]
         }
     ]
 

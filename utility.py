@@ -30,7 +30,7 @@ class Compressor():
         self.location = filename
         self.isTemporary = tmp
 
-    def compressDir(self, source_dir):
+    def compressDir(self, source_dir, blacklist=[]):
         if os.path.isdir(source_dir) and self.dump != None:
             # Get abspath of the parent directory of source_dir
             abspath = os.path.abspath(os.path.join(source_dir, os.pardir))

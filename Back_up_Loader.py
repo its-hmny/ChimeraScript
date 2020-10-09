@@ -18,13 +18,14 @@ destPath = "/public/hmny/" # The destinaion path on the server
 destFolder = destPath + "Backup/"
 hostname = "pinkerton.cs.unibo.it"
 usrnm = "enea.guidi"
+dirBlacklist = ["node_modules"]
 
 log = Log()
 
 # Platform specific fields
 if (platform.system() == "Windows"):
 	homePath = "C:/Users/eneag/"
-	dirToUpload = ["Pictures", "Desktop/Progetti", "Desktop/Università", "Documenti"]
+	dirToUpload = ["Pictures", "Desktop/Progetti", "Desktop/Università", "Documents"]
 elif (platform.system() == "Linux"):
 	homePath = "/home/hmny/"
 	dirToUpload = ["Pictures", "Projects", "University", "Documents"]
@@ -37,14 +38,14 @@ def recursivePut(sftpConnection, toUpload, destination):
 		local = os.path.join(toUpload, entry)
 		remote = destination + "/" + entry
 		
-		if os.path.isdir(local):
+		if os.path.isdir(local) and dirBlacklist.count(entry) == 0:
 			sftpConnection.makedirs(remote)
 			recursivePut(sftpConnection, local, remote)
 			continue
 		elif os.path.islink(local):
 			continue
-		
-		sftpConnection.put(local, remote)
+		elif os.path.isfile(local):
+			sftpConnection.put(local, remote)
 
 def uncompressedUpload(sftp):
 	# Creates the destination if it doesn't exist
@@ -64,11 +65,10 @@ def compressedUpload(sftp):
 	# Put all the desired directory in a compressed file
 	dump = Compressor("Backup.zip")
 	for up_dir in dirToUpload:
-		dump << up_dir
+		dump.compressDir(up_dir, blacklist=dirBlacklist)
 	
 	if dump.runChecks() != None:
 		log.error("Test on the compressed archive returned errors")
-		os._exit(os.EX_OSERR)
 	
 	del dump
 
