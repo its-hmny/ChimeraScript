@@ -34,18 +34,21 @@ else:
 	os._exit(os.EX_OSERR)
 
 def recursivePut(sftpConnection, toUpload, destination):
-	for entry in os.listdir(toUpload):
-		local = os.path.join(toUpload, entry)
-		remote = destination + "/" + entry
-		
-		if os.path.isdir(local) and dirBlacklist.count(entry) == 0:
-			sftpConnection.makedirs(remote)
-			recursivePut(sftpConnection, local, remote)
-			continue
-		elif os.path.islink(local):
-			continue
-		elif os.path.isfile(local):
-			sftpConnection.put(local, remote)
+	try:
+		for entry in os.listdir(toUpload):
+			local = os.path.join(toUpload, entry)
+			remote = destination + "/" + entry
+			
+			if os.path.isdir(local) and dirBlacklist.count(entry) == 0:
+				sftpConnection.makedirs(remote)
+				recursivePut(sftpConnection, local, remote)
+				continue
+			elif os.path.islink(local):
+				continue
+			elif os.path.isfile(local):
+				sftpConnection.put(local, remote)
+	except PermissionError:
+		log.error(toUpload + " couldn't be opened")
 
 def uncompressedUpload(sftp):
 	# Creates the destination if it doesn't exist
