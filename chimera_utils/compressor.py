@@ -1,6 +1,6 @@
 """
-This utility module containes two basics class that are used all over this project.
-The Compressor class implements a simple zip archiver (in future maybe I will implement a more efficient implementation),
+This utility module containes a basics class that are used all over this project.
+The Compressor class implements a simple zip archiver (in future maybe I will work on a more memory efficient implementation),
 it has some operator overloads to keep code simple.
 """
 
@@ -61,7 +61,7 @@ class Compressor():
             os.remove(self.location)
 
 
-# Test section
+# Test section, in order to be effective it must be executed in the ChimeraScript root directory
 if __name__ == "__main__":
     log = Log()
     print("\nTest Compressor class...")
@@ -72,9 +72,9 @@ if __name__ == "__main__":
     log.warning("Compressing some random files to test Compressor")
     dump.compressDir(".")
     dump.compressDir("../BiKayaOS", blacklist=["generics"])
-    dump.compressFile("utility.py")
-    dump.compressFile("utility.py", "BiKayaOS/")
-    dump << "GitPuller.py"
+    dump.compressFile("./GitPuller.py")
+    dump.compressFile("./PyHypervisor.py", "BiKayaOS/")
+    dump << "./EmptyDirRemover.py"
     log.success("Completed random file compression")
 
     log.warning("Running some checks on the archive...")

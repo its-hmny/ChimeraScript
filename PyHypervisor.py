@@ -83,13 +83,13 @@ def loadScriptFromJSON():
 def PyHypervisor():
     log = Log()
 
-    if sys.argv[1] == "-l":
-        loadScriptFromArray(sys.argv[2:])
-    
-    elif sys.argv[1] == "-j":
-        loadScriptFromJSON()
-    
-    else:
+    try:
+        if sys.argv[1] == "-l":
+            loadScriptFromArray(sys.argv[2:])
+        
+        elif sys.argv[1] == "-j":
+            loadScriptFromJSON()
+    except IndexError:
         log.warning(
             """
             Usage: python3 PyHypervisor.py [option] [input] [JSON_subclass]

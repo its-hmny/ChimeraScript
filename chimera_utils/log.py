@@ -1,5 +1,5 @@
 """
-This utility module containes two basics class that are used all over this project.
+This utility module containes a basics class that are used all over this project.
 The Log class is a basic wrapper to print function, it has also the option to set personal codes.
 """
 
