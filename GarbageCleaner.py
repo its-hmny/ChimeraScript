@@ -5,7 +5,7 @@ Created by Enea Guidi on 1/1/20. Please check the README.md for further informat
 """
 
 import os
-from utility import Log
+from chimera_utils import Log
 
 homePath = "/home/its-hmny/"
 dirsToClean = [".cache", "Downloads", "Temporary", "Public"]

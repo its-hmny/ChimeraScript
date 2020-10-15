@@ -9,7 +9,7 @@ Created by Enea Guidi on 31/08/2019, please check the Readme.md for more informa
 """
 
 import imageio, os, sys
-from utility import Log
+from chimera_utils import Log
 
 #Takes the two path and then copies every frame of the video to the correspondant .gif file
 def video_to_Gif(input, output):

@@ -11,7 +11,7 @@ Created by Enea Guidi on 09/03/2020. Please check the README.md for more informa
 """
 
 import os, requests, platform
-from utility import Log
+from chimera_utils import Log
 
 log = Log()
 # Platform specific fields

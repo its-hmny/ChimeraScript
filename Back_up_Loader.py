@@ -11,7 +11,7 @@ Created by Enea Guidi on 08/11/2019. Please check the README.md for more informa
 import pysftp, getpass, platform, os, sys
 from paramiko.ssh_exception import AuthenticationException
 from paramiko.ssh_exception import SSHException
-from utility import Log, Compressor
+from chimera_utils import Log, Compressor
 
 # Fixed fields for every OS (platform indipendent)
 destPath = "/public/hmny/" # The destinaion path on the server

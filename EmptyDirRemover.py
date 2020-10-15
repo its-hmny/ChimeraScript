@@ -5,7 +5,7 @@ Created by Enea Guidi on 20/09/2019. Please check the README.md for more informa
 """
 
 import os, sys
-from utility import Log
+from chimera_utils import Log
 
 def recursiveClean(toClean):
 	#List of all the path inside the current directory

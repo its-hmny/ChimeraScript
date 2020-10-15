@@ -21,7 +21,7 @@ Created by Enea Guidi on 18/07/2020. Please check the README.md for more informa
 """
 
 import os, sys, json
-from utility import Log
+from chimera_utils import Log
 
 subprocessPid = []
 
