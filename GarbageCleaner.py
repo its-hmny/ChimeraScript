@@ -10,17 +10,18 @@ from chimera_utils import Log
 homePath = "/home/its-hmny/"
 dirsToClean = [".cache", "Downloads", "Temporary", "Public"]
 
+
 def wipeDir(path):
     contents = os.listdir(path)
 
     for toDelete in contents:
-        tmp = path + "/" + toDelete #Temporary path
+        tmp = path + "/" + toDelete  # Temporary path
 
-        #Works recursively and deletes the subdirectory
+        # Works recursively and deletes the subdirectory
         if os.path.isdir(tmp):
             wipeDir(tmp)
             os.rmdir(tmp)
-        #Normal file case, should work for every type of file
+        # Normal file case, should work for every type of file
         else:
             os.remove(tmp)
 
@@ -29,14 +30,14 @@ def garbageCleaner():
     log = Log()
 
     for directory in dirsToClean:
-        #Setting up the Current Cleaning Directory
+        # Setting up the Current Cleaning Directory
         ccd = homePath + directory
 
-        #Ignored the case of an already empty directory (warning given to user)
+        # Ignored the case of an already empty directory (warning given to user)
         if os.path.isdir(ccd) and os.listdir(ccd) != []:
             wipeDir(ccd)
             log.success("Cleaned " + ccd)
-        
+
         else:
             log.warning(ccd + " not found or already empty")
 

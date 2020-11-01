@@ -4,6 +4,10 @@
     "ScriptGroups": 
     [
         {
+            "GroupName": "Daily",
+            "ScriptList": ["GitPuller.py", "Back_up_Loader.py"]
+        }, 
+        {
             "GroupName": "Update",
             "ScriptList": ["GitPuller.py", "Update.sh"]
         }, 

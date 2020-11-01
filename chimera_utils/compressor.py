@@ -4,7 +4,8 @@ The Compressor class implements a simple zip archiver (in future maybe I will wo
 it has some operator overloads to keep code simple.
 """
 
-import zipfile, os
+import zipfile
+import os
 from .log import Log
 
 
@@ -15,7 +16,7 @@ class Compressor():
         self.isTemporary = tmp
 
     def compressDir(self, source_dir, blacklist=[]):
-        if os.path.isdir(source_dir) and self.dump != None:
+        if os.path.isdir(source_dir) and self.dump is not None:
             # Get abspath of the parent directory of source_dir
             abspath = os.path.abspath(os.path.join(source_dir, os.pardir))
             # Iterates through directories and files in source_dir adding all recursively
@@ -27,13 +28,14 @@ class Compressor():
                 for file in files:
                     filepath = os.path.join(root, file)
                     if os.path.isfile(filepath):
-                        arcname = os.path.join(os.path.relpath(root, abspath), file)
+                        arcname = os.path.join(
+                            os.path.relpath(root, abspath), file)
                         self.dump.write(filepath, arcname)
         else:
             raise NotADirectoryError
 
     def compressFile(self, file, path="./"):
-        if os.path.isfile(file) and self.dump != None:
+        if os.path.isfile(file) and self.dump is not None:
             # Get abspath of the parent directory of source_dir
             abspath = os.path.abspath(os.path.join(file, os.pardir))
             # Then writes the file in the desired place
@@ -45,7 +47,7 @@ class Compressor():
         return self.dump.testzip()
 
     def __bool__(self):
-        return self.dump != None
+        return self.dump is not None
 
     def __lshift__(self, other):
         if os.path.isfile(other):
@@ -53,7 +55,9 @@ class Compressor():
         elif os.path.isdir(other):
             self.compressDir(other)
         else:
-            raise TypeError("Invalid argument, check that the path is correct or that a path string was given")
+            raise TypeError(
+                "Invalid argument, check that the path is correct or that a path string was given"
+            )
 
     def __del__(self):
         self.dump.close()
@@ -82,7 +86,7 @@ if __name__ == "__main__":
         testOutcome = dump.runChecks()
     except RuntimeError:
         log.error("Seems like the dump is closed")
-    if testOutcome == None:
+    if testOutcome is None:
         log.success("No file result damaged")
     else:
         log.error("Here's a list of files badly compressed: {}".format(testOutcome))

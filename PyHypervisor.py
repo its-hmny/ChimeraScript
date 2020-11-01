@@ -20,26 +20,29 @@ Example: "python3 PyHypervisor.py -l Update.sh EmptyDirRemover.py"
 Created by Enea Guidi on 18/07/2020. Please check the README.md for more informations.
 """
 
-import os, sys, json
+import os
+import sys
+import json
 from chimera_utils import Log
 
 subprocessPid = []
+
 
 # Return the complete string that has to be given to os.system() for a correct execution
 def getExecutableString(script, interpreter):
     # If the script has execution permission and hashbang as first line
     if oct(os.stat(script).st_mode & 0o700) == oct(0o700) and open(script).readline().find("#!") != -1:
         return str(os.path.join(os.getcwd(), script))
-    
+
     # Else interpolate with the correct interpreter
     elif interpreter != "":
         return "{} {}".format(interpreter, os.path.join(os.getcwd(), script))
-    
+
     else:
         return ""
-  
 
-# Get the correct command string and create a child (that will execute it) 
+
+# Get the correct command string and create a child (that will execute it)
 def executeScript(script, interpreter=""):
     formattedStr = getExecutableString(script, interpreter)
     pid = os.fork()
@@ -47,7 +50,7 @@ def executeScript(script, interpreter=""):
     if pid == 0:
         os.system(formattedStr)
         os._exit(os.EX_OK)
-    
+
     else:
         return pid
 
@@ -86,7 +89,7 @@ def PyHypervisor():
     try:
         if sys.argv[1] == "-l":
             loadScriptFromArray(sys.argv[2:])
-        
+
         elif sys.argv[1] == "-j":
             loadScriptFromJSON()
     except IndexError:
@@ -97,14 +100,15 @@ def PyHypervisor():
             Input: the list of script to execute (-l) or the JSON file (-j)
             Only for JSON file you can name groups each with their own scripts
             and select only one of them to be executed, else every group will be executed
-            """ 
+            """
         )
         os._exit(os.EX_OK)
 
     for pid in subprocessPid:
         os.waitpid(pid, 0)
 
-    log.error("No script scheduled for execution") if subprocessPid == [] else log.success("---> All task completed")
+    log.error("No script scheduled for execution") if subprocessPid == [
+    ] else log.success("---> All task completed")
 
 
 PyHypervisor()

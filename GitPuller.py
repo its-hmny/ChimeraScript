@@ -10,18 +10,21 @@ Note: that all the repositories are pulled so be aware of the risk (merge confli
 Created by Enea Guidi on 09/03/2020. Please check the README.md for more informations.
 """
 
-import os, requests, platform
+import os
+import requests
+import platform
 from chimera_utils import Log
 
 log = Log()
+
 # Platform specific fields
 if (platform.system() == "Windows"):
-	projectDirectory = "C:/Users/eneag/Desktop/Progetti/"
-	starredDirectory = "C:/Users/eneag/Desktop/Public/"
+    projectDirectory = "C:/Users/eneag/Desktop/Progetti/"
+    starredDirectory = "C:/Users/eneag/Desktop/Public/"
 elif (platform.system() == "Linux"):
     projectDirectory = "/home/hmny/Projects/"
     starredDirectory = "/home/hmny/Public/"
-else: 
+else:
     log.error("Unrecognized or unsupported OS")
 
 
@@ -34,18 +37,17 @@ def existingRepoPuller(path):
             # Pulls from origin, less verbosely as possible, returning confirmation
             os.system("git pull")
             log.success("Pulled " + project + " from GitHub")
-        
+
         except NotADirectoryError:
             log.warning(project + " is not a directory, skipped!")
-
 
 
 # Given the HTTP response, the item list to scroll and the (eventual) message
 def cloneList(response, scroll_list, msg, path):
     if response.status_code != 200:
         raise ConnectionRefusedError
-    
-    os.chdir(path) # Updates direcotry to current path
+
+    os.chdir(path)  # Updates direcotry to current path
 
     for item in scroll_list:
         if not os.path.isdir(path + item["name"]):
@@ -55,14 +57,17 @@ def cloneList(response, scroll_list, msg, path):
 
 def newRepoCloner():
     # Uses GitHub API to get all my publicly hosted repositories as JSON
-    response = requests.get("https://api.github.com/search/repositories?q=user:its-hmny")
-    cloneList(response, response.json()["items"], "Cloned your new repo: ", projectDirectory)
+    response = requests.get(
+        "https://api.github.com/search/repositories?q=user:its-hmny")
+    cloneList(response, response.json()[
+              "items"], "Cloned your new repo: ", projectDirectory)
 
 
 def starredRepoCloner():
     # Uses GitHub API to get my starred repos and eventually clone them
     response = requests.get("https://api.github.com/users/its-hmny/starred")
-    cloneList(response, response.json()[0:], "Cloned your starred repo: ", starredDirectory)
+    cloneList(response, response.json()[
+              0:], "Cloned your starred repo: ", starredDirectory)
 
 
 def gitPuller():
@@ -70,13 +75,13 @@ def gitPuller():
         # Pulls the change from the existing project directory
         existingRepoPuller(projectDirectory)
         existingRepoPuller(starredDirectory)
-        
+
         # Clones the repo that are not yet present in the folder
         newRepoCloner()
-        
+
         # Clones the starred repo that are not yet present in the folder
         starredRepoCloner()
-    
+
     except FileNotFoundError:
         log.error("Error! The project directory doesn't exist")
 
