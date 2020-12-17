@@ -32,8 +32,7 @@ class TaskPool():
             for i in range(len(func_v)):
                 self.submit(func_v[i], **args_v[i])
         else:
-            raise IndexError(
-                "The function and argument vector must have the same size, use empty dict for void function")
+            raise IndexError("The function and argument vector must have the same size, use empty dict for void function")
 
     # Wait for all thread to be concluded
     def waitAll(self):
@@ -47,21 +46,18 @@ class TaskPool():
 
 
 # Test section
-def hello():
-    print("Hello from a thread with no params")
-
-
-def hello_params(str1, str2):
-    for i in range(1000000):
-        i = i - 1
-        i = i * 1
-        i = i + 1
-    print("Hello from a thread with params: {} {} {}".format(str1, str2, xxx))
-
-
 xxx = "Scope test"
 
 if __name__ == "__main__":
+    def hello():
+        print("Hello from a thread with no params")
+
+    def hello_params(str1, str2):
+        for i in range(1000000):
+            i = i - 1
+            i = i * 1
+            i = i + 1
+        print("Hello from a thread with params: {} {} {}".format(str1, str2, xxx))
 
     pool = TaskPool()
     dummy_funcv = [hello, hello_params, hello_params, hello]
