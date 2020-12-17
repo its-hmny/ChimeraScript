@@ -62,35 +62,3 @@ class Compressor():
         self.dump.close()
         if self.isTemporary:
             os.remove(self.location)
-
-
-# Test section, in order to be effective it must be executed in the ChimeraScript root directory
-if __name__ == "__main__":
-    log = __import__("log").Log()
-    print("\nTest Compressor class...")
-    dump = Compressor("test.zip", True)
-    if not dump:
-        log.error("Dump couldn't be initialized")
-
-    log.warning("Compressing some random files to test Compressor")
-    dump.compressDir(".")
-    dump.compressDir("../BiKayaOS", blacklist=["generics"])
-    dump.compressFile("./GitPuller.py")
-    dump.compressFile("./PyHypervisor.py", "BiKayaOS/")
-    dump << "./EmptyDirRemover.py"
-    log.success("Completed random file compression")
-
-    log.warning("Running some checks on the archive...")
-    try:
-        testOutcome = dump.runChecks()
-    except RuntimeError:
-        log.error("Seems like the dump is closed")
-    if testOutcome is None:
-        log.success("No file result damaged")
-    else:
-        log.error("Here's a list of files badly compressed: {}".format(testOutcome))
-
-    log.warning("Closing the archive, this will delete it")
-    del dump
-    if os.path.isfile("test.zip"):
-        log.error("The test dump is still here!")

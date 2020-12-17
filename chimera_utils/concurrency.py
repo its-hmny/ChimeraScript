@@ -43,27 +43,3 @@ class TaskPool():
     def __del__(self):
         if self.activeTask > 0:
             self.waitAll()
-
-
-# Test section
-xxx = "Scope test"
-
-if __name__ == "__main__":
-    def hello():
-        print("Hello from a thread with no params")
-
-    def hello_params(str1, str2):
-        for i in range(1000000):
-            i = i - 1
-            i = i * 1
-            i = i + 1
-        print("Hello from a thread with params: {} {} {}".format(str1, str2, xxx))
-
-    pool = TaskPool()
-    dummy_funcv = [hello, hello_params, hello_params, hello]
-    dummy_args = [{"str1": "Test1a", "str2": "Test1b"},
-                  {"str1": "Test2a", "str2": "Test2b"}]
-
-    pool.submit(hello)
-    pool.submit_OneToMany(hello_params, *dummy_args)
-    pool.submit_ManyToMany(dummy_funcv, [{}, *dummy_args, {}])

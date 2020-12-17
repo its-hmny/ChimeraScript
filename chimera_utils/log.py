@@ -19,13 +19,3 @@ class Log():
 
     def warning(self, msg="YOU must provide a message"):
         print("{}{}{}".format(self._warningCode, msg, self._clearCode))
-
-
-# Test section
-if __name__ == "__main__":
-    log = Log()
-    log._clearCode = True
-    print("\nTest Log class...")
-    log.error("This is an error message")
-    log.warning("This is an warning message")
-    log.success("This is an success message")
