@@ -6,7 +6,7 @@ class TestStringMethods(unittest.TestCase):
         dump = __import__('compressor').Compressor("test.zip", True)
         self.assertTrue(dump)
         dump.compressDir(".")
-        dump.compressDir("../BiKayaOS", blacklist=["generics"])
+        dump.compressDir("chimera_utils", blacklist=["drive_fs.py"])
         dump.compressFile("./GitPuller.py")
         with self.assertRaises(NotADirectoryError):
             dump.compressDir("log.py")
@@ -14,7 +14,7 @@ class TestStringMethods(unittest.TestCase):
             dump.compressFile("NonExistent.txt")
         with self.assertRaises(TypeError):
             dump << "This doesn't exist either"
-        dump.compressFile("./PyHypervisor.py", "BiKayaOS/")
+        dump.compressFile("./PyHypervisor.py", "chimera_utils/")
         dump << "./EmptyDirRemover.py"
         self.assertEqual(dump.runChecks(), None)
         del dump
