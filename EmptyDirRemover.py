@@ -13,7 +13,8 @@ def recursiveClean(toClean):
     # List of all the path inside the current directory
     dirContent = os.listdir(toClean)
 
-    # Check that also the subdirectory have files in it and calls the clean function on them
+    # Check that also the subdirectory have files in it and calls the clean
+    # function on them
     for contained in dirContent:
         newPath = os.path.join(toClean, contained)
         if (os.path.isdir(newPath)):

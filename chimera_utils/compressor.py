@@ -18,12 +18,14 @@ class Compressor():
         if os.path.isdir(source_dir) and self.dump is not None:
             # Get abspath of the parent directory of source_dir
             abspath = os.path.abspath(os.path.join(source_dir, os.pardir))
-            # Iterates through directories and files in source_dir adding all recursively
+            # Iterates through directories and files in source_dir adding all
+            # recursively
             for root, dirs, files in os.walk(source_dir):
                 dirs[:] = [d for d in dirs if d not in blacklist]
                 # Create the current directory in the dump
                 self.dump.write(root, os.path.relpath(root, abspath))
-                # Then puts all the files contained in the newly created directory
+                # Then puts all the files contained in the newly created
+                # directory
                 for file in files:
                     filepath = os.path.join(root, file)
                     if os.path.isfile(filepath):

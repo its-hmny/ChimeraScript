@@ -33,7 +33,8 @@ def garbageCleaner():
         # Setting up the Current Cleaning Directory
         ccd = homePath + directory
 
-        # Ignored the case of an already empty directory (warning given to user)
+        # Ignored the case of an already empty directory (warning given to
+        # user)
         if os.path.isdir(ccd) and os.listdir(ccd) != []:
             wipeDir(ccd)
             log.success("Cleaned " + ccd)

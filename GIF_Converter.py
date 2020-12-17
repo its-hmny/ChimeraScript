@@ -1,5 +1,5 @@
 """
-GIF_Converter is a simple script to convert a .mp4 or .mkv file to a .gif file, 
+GIF_Converter is a simple script to convert a .mp4 or .mkv file to a .gif file,
 more extension type to convert coming soon...
 
 Note: In order to work it relies on imageio as third party library,
@@ -14,7 +14,8 @@ import sys
 from chimera_utils import Log
 
 
-# Takes the two path and then copies every frame of the video to the correspondant .gif file
+# Takes the two path and then copies every frame of the video to the
+# correspondant .gif file
 def video_to_Gif(input, output):
     reader = imageio.get_reader(input)
     fps = reader.get_meta_data()['fps']
