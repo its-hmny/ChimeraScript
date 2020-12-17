@@ -23,9 +23,17 @@ Created by Enea Guidi on 18/07/2020. Please check the README.md for more informa
 import os
 import sys
 import json
-from chimera_utils import Log
+from chimera_utils import Log, TaskPool
 
-subprocessPid = []
+log = Log()
+jobsPool = TaskPool()
+usageInfo = """
+Usage: python3 PyHypervisor.py [option] [input] [JSON_subclass]
+Option: -l to execute script from argv[], -j to execute script grouped in a JSON file
+Input: the list of script to execute (-l) or the JSON file (-j)
+Only for JSON file you can name groups each with their own scripts
+and select only one of them to be executed, else every group will be executed
+"""
 
 
 # Return the complete string that has to be given to os.system() for a correct execution
@@ -42,28 +50,18 @@ def getExecutableString(script, interpreter):
         return ""
 
 
-# Get the correct command string and create a child (that will execute it)
-def executeScript(script, interpreter=""):
-    formattedStr = getExecutableString(script, interpreter)
-    pid = os.fork()
-
-    if pid == 0:
-        os.system(formattedStr)
-        os._exit(os.EX_OK)
-
-    else:
-        return pid
-
-
 # Receives as input an array of string (that shoul be script path) and trie to execute them
 def loadScriptFromArray(array):
     for string in array:
         inputExtension = os.path.splitext(string)[-1]
 
         if inputExtension == ".py":
-            subprocessPid.append(executeScript(string, "python3"))
+            formattedStr = getExecutableString(string, 'python3')
         elif inputExtension == ".sh":
-            subprocessPid.append(executeScript(string, "sh"))
+            formattedStr = getExecutableString(string, "sh")
+        
+        execFunction = lambda command: __import__("os").system(command)
+        jobsPool.submit(execFunction, command=formattedStr)
 
 
 # Load the script list from JSON with the possiility select one specific group or all of them
@@ -84,31 +82,18 @@ def loadScriptFromJSON():
 
 
 def PyHypervisor():
-    log = Log()
-
     try:
         if sys.argv[1] == "-l":
             loadScriptFromArray(sys.argv[2:])
-
         elif sys.argv[1] == "-j":
             loadScriptFromJSON()
     except IndexError:
-        log.warning(
-            """
-            Usage: python3 PyHypervisor.py [option] [input] [JSON_subclass]
-            Option: -l to execute script from argv[], -j to execute script grouped in a JSON file
-            Input: the list of script to execute (-l) or the JSON file (-j)
-            Only for JSON file you can name groups each with their own scripts
-            and select only one of them to be executed, else every group will be executed
-            """
-        )
+        log.warning(usageInfo)
         os._exit(os.EX_OK)
 
-    for pid in subprocessPid:
-        os.waitpid(pid, 0)
+    jobsPool.waitAll()
 
-    log.error("No script scheduled for execution") if subprocessPid == [
-    ] else log.success("---> All task completed")
+    log.error("No script scheduled for execution") if len(sys.argv) == 1 else log.success("---> All task completed")
 
 
 PyHypervisor()

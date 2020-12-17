@@ -36,14 +36,14 @@ class TaskPool():
                 "The function and argument vector must have the same size, use empty dict for void function")
 
     # Wait for all thread to be concluded
-    def wait(self):
+    def waitAll(self):
         for thread in self.pool:
             thread.join()
             self.activeTask -= 1
 
     def __del__(self):
         if self.activeTask > 0:
-            self.wait()
+            self.waitAll()
 
 
 # Test section
