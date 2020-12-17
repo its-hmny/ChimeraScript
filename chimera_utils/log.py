@@ -5,7 +5,11 @@ The Log class is a basic wrapper to print function, it has also the option to se
 
 
 class Log():
-    def __init__(self, success="\033[92m", error="\033[91m", warning="\033[93m"):
+    def __init__(
+            self,
+            success="\033[92m",
+            error="\033[91m",
+            warning="\033[93m"):
         self._clearCode = "\033[0m"
         self._errorCode = error
         self._successCode = success

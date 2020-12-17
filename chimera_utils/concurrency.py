@@ -32,7 +32,8 @@ class TaskPool():
             for i in range(len(func_v)):
                 self.submit(func_v[i], **args_v[i])
         else:
-            raise IndexError("The function and argument vector must have the same size, use empty dict for void function")
+            raise IndexError(
+                "The function and argument vector must have the same size, use empty dict for void function")
 
     # Wait for all thread to be concluded
     def waitAll(self):

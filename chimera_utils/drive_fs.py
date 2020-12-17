@@ -8,6 +8,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import os
 
+
 class GDriveFile():
     def __init__(self, _apiResponseObject):
         self._internalData = _apiResponseObject
@@ -27,8 +28,8 @@ class GDriveFileSystem():
         return [
             GDriveFile(item)
             for item in self.driveRef
-                .ListFile({'q': "'{}' in parents and trashed=false".format(item_id), 'orderBy': "title"})
-                .GetList()
+            .ListFile({'q': "'{}' in parents and trashed=false".format(item_id), 'orderBy': "title"})
+            .GetList()
         ]
 
     def isDir(self, GDrive_fd):
@@ -49,10 +50,11 @@ class GDriveFileSystem():
     def listDir(self, GDrive_fd):
         if isinstance(GDrive_fd, GDriveFile) and self.isDir(GDrive_fd):
             return self._getContent(GDrive_fd.uuid)
-        elif type(GDrive_fd) == str and GDrive_fd == 'root':
+        elif isinstance(GDrive_fd, str) and GDrive_fd == 'root':
             return self._getContent(GDrive_fd)
         else:
-            raise TypeError("The input entry is not a direcotry in Google Drive")
+            raise TypeError(
+                "The input entry is not a direcotry in Google Drive")
 
     def downloadFile(self, GDrive_fd):
         remoteFile = self.driveRef.CreateFile({'id': GDrive_fd.uuid})
@@ -62,7 +64,7 @@ class GDriveFileSystem():
         remoteFile = self.driveRef.CreateFile()
         remoteFile.SetContentFile(filepath)
         remoteFile.Upload()
-            
+
 
 if __name__ == "__main__":
     log = __import__("log").Log()
@@ -70,24 +72,28 @@ if __name__ == "__main__":
 
     # Test of the root file system
     for entry in drive_fs.listDir('root'):
-        log.warning("Check that {} is a directory: {} or is a file: {}"
-            .format(entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
+        log.warning("Check that {} is a directory: {} or is a file: {}" .format(
+            entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
     print()
     # Test of nested directory
     newEntryPoint = drive_fs.listDir('root')[0]
     for entry in drive_fs.listDir(newEntryPoint):
-        log.warning("Check that {} is a directory: {} or is a file: {}"
-            .format(entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
-        
+        log.warning("Check that {} is a directory: {} or is a file: {}" .format(
+            entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
+
         if entry.filename == "Curriculum Enea 2020.pdf":
             # Test of the download from Drive functionality
             log.warning("Test of the download from Drive functionality")
             drive_fs.downloadFile(entry)
             if (os.path.isfile(entry.filename)):
-                log.success("Correctly downloaded the file {}".format(entry.filename))
+                log.success(
+                    "Correctly downloaded the file {}".format(
+                        entry.filename))
                 os.remove(entry.filename)
             else:
-                log.error("I should have downloaded {}, but I can't find it".format(entry.filename))
+                log.error(
+                    "I should have downloaded {}, but I can't find it".format(
+                        entry.filename))
 
     print()
 
@@ -95,4 +101,8 @@ if __name__ == "__main__":
     drive_fs.uploadFile("PyHypervisor.py")
     for entry in drive_fs.listDir('root'):
         if entry.filename == "PyHypervisor.py":
-            log.success("File {} created successfully: {} {}".format(entry.filename, entry.filetype, entry.uuid))
+            log.success(
+                "File {} created successfully: {} {}".format(
+                    entry.filename,
+                    entry.filetype,
+                    entry.uuid))
