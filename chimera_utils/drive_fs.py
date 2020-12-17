@@ -6,7 +6,6 @@ file system comfortably. Also additional methods are added to upload and downloa
 
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-from log import Log
 import os
 
 class GDriveFile():
@@ -66,7 +65,7 @@ class GDriveFileSystem():
             
 
 if __name__ == "__main__":
-    log = Log()
+    log = __import__("log").Log()
     drive_fs = GDriveFileSystem()
 
     # Test of the root file system

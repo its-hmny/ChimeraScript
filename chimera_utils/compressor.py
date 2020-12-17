@@ -6,7 +6,6 @@ it has some operator overloads to keep code simple.
 
 import zipfile
 import os
-from .log import Log
 
 
 class Compressor():
@@ -67,7 +66,7 @@ class Compressor():
 
 # Test section, in order to be effective it must be executed in the ChimeraScript root directory
 if __name__ == "__main__":
-    log = Log()
+    log = __import__("log").Log()
     print("\nTest Compressor class...")
     dump = Compressor("test.zip", True)
     if not dump:
