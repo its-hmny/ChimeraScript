@@ -36,38 +36,11 @@ class TaskPool():
                 "The function and argument vector must have the same size, use empty dict for void function")
 
     # Wait for all thread to be concluded
-    def wait(self):
+    def waitAll(self):
         for thread in self.pool:
             thread.join()
             self.activeTask -= 1
 
     def __del__(self):
         if self.activeTask > 0:
-            self.wait()
-
-
-# Test section
-def hello():
-    print("Hello from a thread with no params")
-
-
-def hello_params(str1, str2):
-    for i in range(1000000):
-        i = i - 1
-        i = i * 1
-        i = i + 1
-    print("Hello from a thread with params: {} {} {}".format(str1, str2, xxx))
-
-
-xxx = "Scope test"
-
-if __name__ == "__main__":
-
-    pool = TaskPool()
-    dummy_funcv = [hello, hello_params, hello_params, hello]
-    dummy_args = [{"str1": "Test1a", "str2": "Test1b"},
-                  {"str1": "Test2a", "str2": "Test2b"}]
-
-    pool.submit(hello)
-    pool.submit_OneToMany(hello_params, *dummy_args)
-    pool.submit_ManyToMany(dummy_funcv, [{}, *dummy_args, {}])
+            self.waitAll()

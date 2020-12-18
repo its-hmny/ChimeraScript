@@ -6,7 +6,6 @@ file system comfortably. Also additional methods are added to upload and downloa
 
 from pydrive.auth import GoogleAuth, AuthenticationError
 from pydrive.drive import GoogleDrive
-from .log import Log
 import os
 
 
@@ -58,10 +57,11 @@ class GDriveFileSystem():
     def listDir(self, GDrive_fd):
         if isinstance(GDrive_fd, GDriveFile) and self.isDir(GDrive_fd):
             return self._getContent(GDrive_fd.uuid)
-        elif type(GDrive_fd) == str and GDrive_fd == 'root':
+        elif isinstance(GDrive_fd, str) and GDrive_fd == 'root':
             return self._getContent(GDrive_fd)
         else:
-            raise TypeError("The input entry is not a direcotry in Google Drive")
+            raise TypeError(
+                "The input entry is not a direcotry in Google Drive")
 
     def downloadFile(self, GDrive_fd):
         if os.path.exists(GDrive_fd.filename):
@@ -76,29 +76,33 @@ class GDriveFileSystem():
 
 
 if __name__ == "__main__":
-    log = Log()
+    log = __import__("log").Log()
     drive_fs = GDriveFileSystem()
 
     # Test of the root file system
     for entry in drive_fs.listDir('root'):
-        log.warning("Check that {} is a directory: {} or is a file: {}"
-                    .format(entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
+        log.warning("Check that {} is a directory: {} or is a file: {}" .format(
+            entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
     print()
     # Test of nested directory
     newEntryPoint = drive_fs.listDir('root')[0]
     for entry in drive_fs.listDir(newEntryPoint):
-        log.warning("Check that {} is a directory: {} or is a file: {}"
-                    .format(entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
+        log.warning("Check that {} is a directory: {} or is a file: {}" .format(
+            entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
 
         if entry.filename == "Curriculum Enea 2020.pdf":
             # Test of the download from Drive functionality
             log.warning("Test of the download from Drive functionality")
             drive_fs.downloadFile(entry)
             if (os.path.isfile(entry.filename)):
-                log.success("Correctly downloaded the file {}".format(entry.filename))
+                log.success(
+                    "Correctly downloaded the file {}".format(
+                        entry.filename))
                 os.remove(entry.filename)
             else:
-                log.error("I should have downloaded {}, but I can't find it".format(entry.filename))
+                log.error(
+                    "I should have downloaded {}, but I can't find it".format(
+                        entry.filename))
 
     print()
 
@@ -106,5 +110,8 @@ if __name__ == "__main__":
     drive_fs.uploadFile("PyHypervisor.py")
     for entry in drive_fs.listDir('root'):
         if entry.filename == "PyHypervisor.py":
-            log.success("File {} created successfully: {} {}".format(
-                entry.filename, entry.filetype, entry.uuid))
+            log.success(
+                "File {} created successfully: {} {}".format(
+                    entry.filename,
+                    entry.filetype,
+                    entry.uuid))

@@ -5,7 +5,7 @@ to make it less verbose as possible but there will be some warnings and/or authe
 especially for private repositories. Also it clones all the repositories that currently aren't in
 the projectDirectory folder as well as all your starred repositories that aren't already cloned.
 
-Note: that all the repositories are pulled so be aware of the risk (merge conflict and so on...).  
+Note: that all the repositories are pulled so be aware of the risk (merge conflict and so on...).
 
 Created by Enea Guidi on 09/03/2020. Please check the README.md for more informations.
 """
@@ -34,7 +34,8 @@ def existingRepoPuller(path):
         try:
             # Changes the current working directory to the project one
             os.chdir(path + project)
-            # Pulls from origin, less verbosely as possible, returning confirmation
+            # Pulls from origin, less verbosely as possible, returning
+            # confirmation
             os.system("git pull")
             log.success("Pulled " + project + " from GitHub")
 
