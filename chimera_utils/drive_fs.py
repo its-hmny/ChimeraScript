@@ -4,15 +4,17 @@ The GDriveFileSystem class implements a simple API (very similar to the os modul
 file system comfortably. Also additional methods are added to upload and download files in both direction
 """
 
-from pydrive.auth import GoogleAuth
+from pydrive.auth import GoogleAuth, AuthenticationError
 from pydrive.drive import GoogleDrive
-from log import Log
+from .log import Log
 import os
+
 
 class GDriveFile():
     def __init__(self, _apiResponseObject):
         self._internalData = _apiResponseObject
         # Basic field for easy interaction with the object
+        self.lastModified = _apiResponseObject['modifiedDate'].split("T")[0]
         self.filetype = _apiResponseObject['mimeType']
         self.filename = _apiResponseObject['title']
         self.uuid = _apiResponseObject['id']
@@ -20,7 +22,10 @@ class GDriveFile():
 
 class GDriveFileSystem():
     def __init__(self):
-        (authentication := GoogleAuth()).LocalWebserverAuth()
+        try:
+            (authentication := GoogleAuth()).LocalWebserverAuth()
+        except AuthenticationError:
+            print("Could not authenticate to Google Drive")
         self.driveRef = GoogleDrive(authentication)
         del authentication
 
@@ -28,8 +33,8 @@ class GDriveFileSystem():
         return [
             GDriveFile(item)
             for item in self.driveRef
-                .ListFile({'q': "'{}' in parents and trashed=false".format(item_id), 'orderBy': "title"})
-                .GetList()
+            .ListFile({'q': "'{}' in parents and trashed=false".format(item_id), 'orderBy': "title"})
+            .GetList()
         ]
 
     def isDir(self, GDrive_fd):
@@ -40,7 +45,10 @@ class GDriveFileSystem():
     def isFile(self, GDrive_fd):
         if not isinstance(GDrive_fd, GDriveFile):
             raise TypeError("The input isn't a GDriveFile object")
-        return GDrive_fd.filetype != 'application/vnd.google-apps.folder'
+        return (
+            GDrive_fd.filetype != 'application/vnd.google-apps.folder' and
+            GDrive_fd.filetype != 'application/vnd.google-apps.shortcut'
+        )
 
     def isLink(self, GDrive_fd):
         if not isinstance(GDrive_fd, GDriveFile):
@@ -56,6 +64,8 @@ class GDriveFileSystem():
             raise TypeError("The input entry is not a direcotry in Google Drive")
 
     def downloadFile(self, GDrive_fd):
+        if os.path.exists(GDrive_fd.filename):
+            os.remove(GDrive_fd.filename)
         remoteFile = self.driveRef.CreateFile({'id': GDrive_fd.uuid})
         remoteFile.GetContentFile(GDrive_fd.filename)
 
@@ -63,7 +73,7 @@ class GDriveFileSystem():
         remoteFile = self.driveRef.CreateFile()
         remoteFile.SetContentFile(filepath)
         remoteFile.Upload()
-            
+
 
 if __name__ == "__main__":
     log = Log()
@@ -72,14 +82,14 @@ if __name__ == "__main__":
     # Test of the root file system
     for entry in drive_fs.listDir('root'):
         log.warning("Check that {} is a directory: {} or is a file: {}"
-            .format(entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
+                    .format(entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
     print()
     # Test of nested directory
     newEntryPoint = drive_fs.listDir('root')[0]
     for entry in drive_fs.listDir(newEntryPoint):
         log.warning("Check that {} is a directory: {} or is a file: {}"
-            .format(entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
-        
+                    .format(entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
+
         if entry.filename == "Curriculum Enea 2020.pdf":
             # Test of the download from Drive functionality
             log.warning("Test of the download from Drive functionality")
@@ -96,4 +106,5 @@ if __name__ == "__main__":
     drive_fs.uploadFile("PyHypervisor.py")
     for entry in drive_fs.listDir('root'):
         if entry.filename == "PyHypervisor.py":
-            log.success("File {} created successfully: {} {}".format(entry.filename, entry.filetype, entry.uuid))
+            log.success("File {} created successfully: {} {}".format(
+                entry.filename, entry.filetype, entry.uuid))
