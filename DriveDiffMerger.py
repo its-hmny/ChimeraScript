@@ -31,8 +31,11 @@ if (platform.system() == "Windows"):
         "Saved Pictures"]
 elif (platform.system() == "Linux"):
     homePath = "/home/hmny/"
-    dirToSync = {"Immagini": "Pictures",
-                 "Università": "University", "Documenti": "Documents", "Others": "Templates"}
+    dirToSync = {
+        "Immagini": "Pictures",
+        "Università": "University",
+        "Documenti": "Documents",
+        "Others": "Templates"}
     blacklist = []
 else:
     log.error("This OS is not supported yet")

@@ -87,7 +87,8 @@ class GDriveFileSystem():
         remoteFile = self.driveRef.CreateFile({'id': GDrive_fd.uuid})
         try:
             remoteFile.GetContentFile(GDrive_fd.filename)
-            timestamp = datetime.strptime(GDrive_fd.lastModified, "%Y-%m-%d").timestamp()
+            timestamp = datetime.strptime(
+                GDrive_fd.lastModified, "%Y-%m-%d").timestamp()
             os.utime(GDrive_fd.filename, (timestamp, timestamp))
         except FileNotDownloadableError:
             pass
