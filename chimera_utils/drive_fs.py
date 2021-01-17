@@ -18,13 +18,19 @@ class GDriveFile():
         self.filename = _apiResponseObject['title']
         self.uuid = _apiResponseObject['id']
 
+    def __str__(self):
+        return self.filename
+
+    def __repr__(self):
+        return self.filename
+
 
 class GDriveFileSystem():
     def __init__(self):
         try:
             (authentication := GoogleAuth()).LocalWebserverAuth()
         except AuthenticationError:
-            print("Could not authenticate to Google Drive")
+            return None
         self.driveRef = GoogleDrive(authentication)
         del authentication
 
@@ -69,10 +75,27 @@ class GDriveFileSystem():
         remoteFile = self.driveRef.CreateFile({'id': GDrive_fd.uuid})
         remoteFile.GetContentFile(GDrive_fd.filename)
 
+    def downloadDir(sel, GDrive_fd):
+        # Create and move in the new root
+        os.mkdir(GDrive_fd.filename)
+        os.chdir(GDrive_fd.filename)
+        for entry in self.listDir(GDrive_fd):
+            if self.isFile(entry):
+                self.downloadFile(remote_file)
+            elif self.isDir(entry):
+                self.downloadDir(entry)
+            elif self.isLink(entry):
+                continue  # ToDo
+        # Return back in the prevoius dir (especially for recursive call)
+        os.chdir('..')
+
     def uploadFile(self, filepath):
         remoteFile = self.driveRef.CreateFile()
         remoteFile.SetContentFile(filepath)
         remoteFile.Upload()
+
+    def uploadDir(self, dirpath):
+        pass
 
 
 if __name__ == "__main__":
