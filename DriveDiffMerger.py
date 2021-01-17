@@ -32,23 +32,23 @@ if (platform.system() == "Windows"):
 elif (platform.system() == "Linux"):
     homePath = "/home/hmny/"
     dirToSync = {"Immagini": "Pictures",
-                 "Università": "University", "Documenti": "Documents"}
+                 "Università": "University", "Documenti": "Documents", "Others": "Templates"}
     blacklist = []
 else:
     log.error("This OS is not supported yet")
     os._exit(os.EX_OSERR)
 
 
-def mergeFiles(remote, local):
+def mergeFiles(remote, local, remoteParent):
     r_lastMod = datetime.strptime(remote.lastModified, "%Y-%m-%d").timestamp()
     l_lastMod = os.path.getmtime(local)
     # When file are merged the more recent modification time
     # is picked to determine which version has to override the counterpart
     # If the date is the same then no change at all happens
     if r_lastMod > l_lastMod:
-        drivefs.downloadFile(r_lastMod)
+        drivefs.downloadFile(remote)
     elif r_lastMod < l_lastMod:
-        drivefs.uploadFile(os.path.abspath(local))
+        drivefs.uploadFile(remoteParent, os.path.abspath(local))
 
 
 def tupleIterator(first, second, valueFirst, valueSecond):
@@ -99,7 +99,7 @@ def synchDir(remotepath, localpath):
         # check has to be done
         if l_exist and r_exist:
             if drivefs.isFile(r_entry):
-                mergeFiles(r_entry, l_entry)
+                mergeFiles(r_entry, l_entry, remotepath)
             elif drivefs.isDir(r_entry):
                 synchDir(r_entry, os.path.join(os.getcwd(), l_entry))
 
@@ -113,7 +113,7 @@ def synchDir(remotepath, localpath):
         # If the current entry doesn't exist remotely then simply upload it
         elif l_exist and not r_exist:
             if os.path.isfile(l_entry):
-                drivefs.uploadeFile(remotepath, l_entry)
+                drivefs.uploadFile(remotepath, l_entry)
             elif os.path.isdir(l_entry):
                 drivefs.uploadDir(remotepath, l_entry)
 

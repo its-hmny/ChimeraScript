@@ -5,7 +5,9 @@ file system comfortably. Also additional methods are added to upload and downloa
 """
 
 from pydrive.auth import GoogleAuth, AuthenticationError
+from pydrive.files import FileNotDownloadableError
 from pydrive.drive import GoogleDrive
+from datetime import datetime
 import os
 
 
@@ -75,7 +77,7 @@ class GDriveFileSystem():
                            'parents': [{"kind": "drive#fileLink",
                                         "id": folderParent.uuid}]}
 
-        folder = drive.CreateFile(folder_metadata)
+        folder = self.driveRef.CreateFile(folder_metadata)
         folder.Upload()
         return GDriveFile(folder)
 
@@ -83,15 +85,20 @@ class GDriveFileSystem():
         if os.path.exists(GDrive_fd.filename):
             os.remove(GDrive_fd.filename)
         remoteFile = self.driveRef.CreateFile({'id': GDrive_fd.uuid})
-        remoteFile.GetContentFile(GDrive_fd.filename)
+        try:
+            remoteFile.GetContentFile(GDrive_fd.filename)
+            timestamp = datetime.strptime(GDrive_fd.lastModified, "%Y-%m-%d").timestamp()
+            os.utime(GDrive_fd.filename, (timestamp, timestamp))
+        except FileNotDownloadableError:
+            pass
 
-    def downloadDir(sel, GDrive_fd):
+    def downloadDir(self, GDrive_fd):
         # Create and move in the new root
         os.mkdir(GDrive_fd.filename)
         os.chdir(GDrive_fd.filename)
         for entry in self.listDir(GDrive_fd):
             if self.isFile(entry):
-                self.downloadFile(remote_file)
+                self.downloadFile(entry)
             elif self.isDir(entry):
                 self.downloadDir(entry)
             elif self.isLink(entry):
@@ -100,24 +107,24 @@ class GDriveFileSystem():
         os.chdir('..')
 
     def uploadFile(self, remoteParent, filepath):
-        if not os.isfile(filepath):
+        if not os.path.isfile(filepath):
             raise TypeError("The input filepath is not a file")
 
         remoteFile = self.driveRef.CreateFile(
             {"parents": [{"kind": "drive#fileLink", "id": remoteParent.uuid}]})
-        remoteFile.SetContentFile(filepath)
+        remoteFile.SetContentFile(os.path.basename(filepath))
         remoteFile.Upload()
 
     def uploadDir(self, remoteParent, dirpath):
-        is not os.path.isdir(dirpath):
+        if not os.path.isdir(dirpath):
             raise TypeError("The input dirpath is not a direcotry")
 
         os.chdir(dirpath)
         newFolder = self.createFolder(dirpath, remoteParent)
-        for entry in os.lisdir('.'):
-            if os.isfile(entry):
-                self.uploadeFile(newFolder, entry)
-            elif os.isdir(entry):
+        for entry in os.listdir('.'):
+            if os.path.isfile(entry):
+                self.uploadFile(newFolder, os.path.basename(entry))
+            elif os.path.isdir(entry):
                 self.uploadDir(newFolder, entry)
             elif self.isLink(entry):
                 continue  # Ignore
