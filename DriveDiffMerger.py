@@ -113,9 +113,9 @@ def synchDir(remotepath, localpath):
         # If the current entry doesn't exist remotely then simply upload it
         elif l_exist and not r_exist:
             if os.path.isfile(l_entry):
-                drivefs.uploadeFile(r_entry)
+                drivefs.uploadeFile(remotepath, l_entry)
             elif os.path.isdir(l_entry):
-                drivefs.uploadDir(r_entry)
+                drivefs.uploadDir(remotepath, l_entry)
 
     # For recursive call returns to previous directory so the caller can start
     # without inconsistencies

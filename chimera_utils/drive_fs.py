@@ -69,6 +69,16 @@ class GDriveFileSystem():
             raise TypeError(
                 "The input entry is not a direcotry in Google Drive")
 
+    def createFolder(self, folderName, folderParent):
+        folder_metadata = {'title': folderName,
+                           'mimeType': 'application/vnd.google-apps.folder',
+                           'parents': [{"kind": "drive#fileLink", "id": folderParent.uuid}]
+                           }
+
+        folder = drive.CreateFile(folder_metadata)
+        folder.Upload()
+        return GDriveFile(folder)
+
     def downloadFile(self, GDrive_fd):
         if os.path.exists(GDrive_fd.filename):
             os.remove(GDrive_fd.filename)
@@ -89,13 +99,29 @@ class GDriveFileSystem():
         # Return back in the prevoius dir (especially for recursive call)
         os.chdir('..')
 
-    def uploadFile(self, filepath):
-        remoteFile = self.driveRef.CreateFile()
+    def uploadFile(self, remoteParent, filepath):
+        if not os.isfile(filepath):
+            raise TypeError("The input filepath is not a file")
+        
+        remoteFile = self.driveRef.CreateFile(
+            {"parents": [{"kind": "drive#fileLink", "id": remoteParent.uuid}]})
         remoteFile.SetContentFile(filepath)
         remoteFile.Upload()
 
-    def uploadDir(self, dirpath):
-        pass
+    def uploadDir(self, remoteParent, dirpath):
+        is not os.path.isdir(dirpath):
+            raise TypeError("The input dirpath is not a direcotry")
+
+        os.chdir(dirpath)
+        newFolder = self.createFolder(dirpath, remoteParent)
+        for entry in os.lisdir('.'):
+            if os.isfile(entry):
+                self.uploadeFile(newFolder, entry)
+            elif os.isdir(entry):
+                self.uploadDir(newFolder, entry)
+            elif self.isLink(entry):
+                continue  # Ignore
+        os.chdir('..')
 
 
 if __name__ == "__main__":
