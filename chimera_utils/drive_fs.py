@@ -72,8 +72,8 @@ class GDriveFileSystem():
     def createFolder(self, folderName, folderParent):
         folder_metadata = {'title': folderName,
                            'mimeType': 'application/vnd.google-apps.folder',
-                           'parents': [{"kind": "drive#fileLink", "id": folderParent.uuid}]
-                           }
+                           'parents': [{"kind": "drive#fileLink",
+                                        "id": folderParent.uuid}]}
 
         folder = drive.CreateFile(folder_metadata)
         folder.Upload()
@@ -102,7 +102,7 @@ class GDriveFileSystem():
     def uploadFile(self, remoteParent, filepath):
         if not os.isfile(filepath):
             raise TypeError("The input filepath is not a file")
-        
+
         remoteFile = self.driveRef.CreateFile(
             {"parents": [{"kind": "drive#fileLink", "id": remoteParent.uuid}]})
         remoteFile.SetContentFile(filepath)
