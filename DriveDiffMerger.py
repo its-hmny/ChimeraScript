@@ -1,5 +1,15 @@
 """
+DriveDiffMerget is a script to automate the synchronization of your Google Drive with you local data and vicevesa.
+You must create a client_secrets.json with your key and put it in your current working directory.
+Once done that you can simply write your own mapping between the remote folder and the local one and then start the script
+Is recommended that at first execution the local directory are empty, this is suggested because if the file were downloaded
+from Google Drive they have as access/modification time the timestamp at wich they were downloaded even tough the file
+has not changed from the remote one, this could mean that the first execution will be an unnecessary reupload of all you remote files
+even if they were not changed at all.
 
+Note: it requires pydrive as third party library, you can install it with "pip3 install pydrive"
+
+Created by Enea Guidi on 17/01/2021. Please check the README.md for more informations
 """
 
 import os
@@ -25,10 +35,12 @@ if (platform.system() == "Windows"):
         "desktop.ini",
         "Musica",
         "Video",
+        "Saved Pictures",
         "Immagini",
         "Foto",
         "Camera Roll",
-        "Saved Pictures"]
+        "Saved Pictures"
+        ".git"]
 elif (platform.system() == "Linux"):
     homePath = "/home/hmny/"
     dirToSync = {
@@ -36,25 +48,30 @@ elif (platform.system() == "Linux"):
         "Università": "University",
         "Documenti": "Documents",
         "Others": "Templates"}
-    blacklist = []
+    blacklist = [".git"]
 else:
     log.error("This OS is not supported yet")
     os._exit(os.EX_OSERR)
 
 
+# Take a remote version and the local counterpart and update the older ones 
 def mergeFiles(remote, local, remoteParent):
     r_lastMod = datetime.strptime(remote.lastModified, "%Y-%m-%d").timestamp()
     l_lastMod = os.path.getmtime(local)
     # When file are merged the more recent modification time
     # is picked to determine which version has to override the counterpart
     # If the date is the same then no change at all happens
+    
     if r_lastMod > l_lastMod:
         drivefs.downloadFile(remote)
     elif r_lastMod < l_lastMod:
         drivefs.uploadFile(remoteParent, os.path.abspath(local))
 
 
+# Take the entries for a a remote directory and its local conterpart and then create 
+# a list of tuple that can iterate the <remote, local> pair/tuple
 def tupleIterator(first, second, valueFirst, valueSecond):
+    # Temporary list with shared value type (str) that can be easily confronted
     tmpFirst = [valueFirst(item)
                 for item in first if item not in blacklist]
     tmpSecond = [valueSecond(item)
