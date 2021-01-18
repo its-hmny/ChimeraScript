@@ -54,21 +54,21 @@ else:
     os._exit(os.EX_OSERR)
 
 
-# Take a remote version and the local counterpart and update the older ones 
+# Take a remote version and the local counterpart and update the older ones
 def mergeFiles(remote, local, remoteParent):
     r_lastMod = datetime.strptime(remote.lastModified, "%Y-%m-%d").timestamp()
     l_lastMod = os.path.getmtime(local)
     # When file are merged the more recent modification time
     # is picked to determine which version has to override the counterpart
     # If the date is the same then no change at all happens
-    
+
     if r_lastMod > l_lastMod:
         drivefs.downloadFile(remote)
     elif r_lastMod < l_lastMod:
         drivefs.uploadFile(remoteParent, os.path.abspath(local))
 
 
-# Take the entries for a a remote directory and its local conterpart and then create 
+# Take the entries for a a remote directory and its local conterpart and then create
 # a list of tuple that can iterate the <remote, local> pair/tuple
 def tupleIterator(first, second, valueFirst, valueSecond):
     # Temporary list with shared value type (str) that can be easily confronted
