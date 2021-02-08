@@ -158,7 +158,8 @@ def DriveDiffMerger():
         # The remote is ASSUMED to be the most updated version
         try:
             synchDir(entry, homePath + dirToSync[entry.filename])
-            log.success(f"{dirToSync[entry.filename]} synchronized with your Google Drive")
+            log.success(
+                f"{dirToSync[entry.filename]} synchronized with your Google Drive")
         except KeyError:
             log.error(
                 f"Missing mapping for Google Drive directory {entry.filename}")

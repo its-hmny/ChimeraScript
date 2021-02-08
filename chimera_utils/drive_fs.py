@@ -138,12 +138,14 @@ if __name__ == "__main__":
 
     # Test of the root file system
     for entry in drive_fs.listDir('root'):
-        log.warning(f"Check that {entry.filename} is a directory: {drive_fs.isDir(entry)} or is a file: {drive_fs.isFile(entry)}")
+        log.warning(
+            f"Check that {entry.filename} is a directory: {drive_fs.isDir(entry)} or is a file: {drive_fs.isFile(entry)}")
     print()
     # Test of nested directory
     newEntryPoint = drive_fs.listDir('root')[0]
     for entry in drive_fs.listDir(newEntryPoint):
-        log.warning(f"Check that {entry.filename} is a directory: {drive_fs.isDir(entry)} or is a file: {drive_fs.isFile(entry)}")
+        log.warning(
+            f"Check that {entry.filename} is a directory: {drive_fs.isDir(entry)} or is a file: {drive_fs.isFile(entry)}")
 
         if entry.filename == "Curriculum Enea 2020.pdf":
             # Test of the download from Drive functionality
@@ -155,7 +157,8 @@ if __name__ == "__main__":
                         entry.filename))
                 os.remove(entry.filename)
             else:
-                log.error(f"I should have downloaded {entry.filename}, but I can't find it")
+                log.error(
+                    f"I should have downloaded {entry.filename}, but I can't find it")
 
     print()
 
@@ -163,4 +166,5 @@ if __name__ == "__main__":
     drive_fs.uploadFile("PyHypervisor.py")
     for entry in drive_fs.listDir('root'):
         if entry.filename == "PyHypervisor.py":
-            log.success(f"File {entry.filename} created successfully: {entry.filetype} {entry.uuid}")
+            log.success(
+                f"File {entry.filename} created successfully: {entry.filetype} {entry.uuid}")

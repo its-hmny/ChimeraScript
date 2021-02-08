@@ -40,7 +40,8 @@ and select only one of them to be executed, else every group will be executed
 # correct execution
 def getExecutableString(script, interpreter):
     # If the script has execution permission and hashbang as first line
-    if oct(os.stat(script).st_mode & 0o700) == oct(0o700) and open(script).readline().find("#!") != -1:
+    if oct(os.stat(script).st_mode & 0o700) == oct(
+            0o700) and open(script).readline().find("#!") != -1:
         return str(os.path.join(os.getcwd(), script))
     # Else interpolate with the correct interpreter
     elif interpreter != "":
