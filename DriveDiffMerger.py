@@ -151,7 +151,7 @@ def DriveDiffMerger():
     if (drivefs is None):
         log.error("Could not authenticate with Google")
         return -1
-    
+
     # Iteration on the main entry mapping them to their local counterpart
     # From now on we can assume specularity between the remote and the local
     # tree structure
