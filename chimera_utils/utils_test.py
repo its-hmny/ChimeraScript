@@ -24,7 +24,7 @@ class TestStringMethods(unittest.TestCase):
 
     def test_concurrency(self):
         pool = __import__("concurrency").TaskPool()
-        xxx = "Scp[e test"
+        xxx = "Scope test"
 
         def hello():
             print("Hello from a thread with no params")

@@ -5,10 +5,26 @@ Created by Enea Guidi on 1/1/20. Please check the README.md for further informat
 """
 
 import os
+import platform
 from chimera_utils import Log
 
-homePath = "/home/its-hmny/"
-dirsToClean = [".cache", "Downloads", "Temporary", "Public"]
+if (platform.system() == "Windows"):
+    homePath = "C:/Users/eneag/"
+    # This is the amount of shit that Windows has by default
+    dirsToClean = [
+        "Documents/odelli di Office personalizzati",
+        "Documents/WindowsPowerShell",
+        "Documents/Zoom"
+        "Videos/Captures",
+        "Pictures/Saved Pictures",
+        "Pictures/Camera Roll",
+    ]
+elif (platform.system() == "Linux"):
+    homePath = "/home/its-hmny/"
+    dirsToClean = [".cache", "Downloads", "Temporary", "Public"]
+else:
+    log.error("This OS is not supported yet")
+    os._exit(os.EX_OSERR)
 
 
 def wipeDir(path):
