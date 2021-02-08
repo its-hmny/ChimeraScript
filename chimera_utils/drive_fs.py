@@ -40,7 +40,7 @@ class GDriveFileSystem():
         return [
             GDriveFile(item)
             for item in self.driveRef
-            .ListFile({'q': "'{}' in parents and trashed=false".format(item_id), 'orderBy': "title"})
+            .ListFile({'q': f"'{item_id}' in parents and trashed=false", 'orderBy': "title"})
             .GetList()
         ]
 
@@ -138,14 +138,12 @@ if __name__ == "__main__":
 
     # Test of the root file system
     for entry in drive_fs.listDir('root'):
-        log.warning("Check that {} is a directory: {} or is a file: {}" .format(
-            entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
+        log.warning(f"Check that {entry.filename} is a directory: {drive_fs.isDir(entry)} or is a file: {drive_fs.isFile(entry)}")
     print()
     # Test of nested directory
     newEntryPoint = drive_fs.listDir('root')[0]
     for entry in drive_fs.listDir(newEntryPoint):
-        log.warning("Check that {} is a directory: {} or is a file: {}" .format(
-            entry.filename, drive_fs.isDir(entry), drive_fs.isFile(entry)))
+        log.warning(f"Check that {entry.filename} is a directory: {drive_fs.isDir(entry)} or is a file: {drive_fs.isFile(entry)}")
 
         if entry.filename == "Curriculum Enea 2020.pdf":
             # Test of the download from Drive functionality
@@ -157,9 +155,7 @@ if __name__ == "__main__":
                         entry.filename))
                 os.remove(entry.filename)
             else:
-                log.error(
-                    "I should have downloaded {}, but I can't find it".format(
-                        entry.filename))
+                log.error(f"I should have downloaded {entry.filename}, but I can't find it")
 
     print()
 
@@ -167,8 +163,4 @@ if __name__ == "__main__":
     drive_fs.uploadFile("PyHypervisor.py")
     for entry in drive_fs.listDir('root'):
         if entry.filename == "PyHypervisor.py":
-            log.success(
-                "File {} created successfully: {} {}".format(
-                    entry.filename,
-                    entry.filetype,
-                    entry.uuid))
+            log.success(f"File {entry.filename} created successfully: {entry.filetype} {entry.uuid}")

@@ -43,7 +43,7 @@ def recursivePut(sftpConnection, toUpload, destination):
     try:
         for entry in os.listdir(toUpload):
             local = os.path.join(toUpload, entry)
-            remote = destination + "/" + entry
+            remote = f"{destination}/{entry}"
 
             if os.path.isdir(local) and dirBlacklist.count(entry) == 0:
                 sftpConnection.makedirs(remote)
@@ -78,11 +78,11 @@ def compressedUpload(sftp):
     dump = Compressor(homePath + "Backup.zip")
     for up_dir in dirToUpload:
         dump.compressDir(homePath + up_dir, blacklist=dirBlacklist)
-        log.success("{} compressed".format(up_dir))
+        log.success(f"{up_dir} compressed")
 
     if errors := dump.runChecks():
         log.error(
-            "Test on the compressed archive returned errors: {}".format(errors))
+            f"Test on the compressed archive returned errors: {errors}")
 
     del dump
 
@@ -107,7 +107,7 @@ def Back_up_Loader():
             elif mode == "--uncompressed" or mode == "-u":
                 uncompressedUpload(sftp)
             else:
-                log.error("Unrecognized arg: {}".format(mode))
+                log.error(f"Unrecognized arg: {mode}")
 
             sftp.close()
 

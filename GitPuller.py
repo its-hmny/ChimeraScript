@@ -37,10 +37,10 @@ def existingRepoPuller(path):
             # Pulls from origin, less verbosely as possible, returning
             # confirmation
             os.system("git pull")
-            log.success("Pulled " + project + " from GitHub")
+            log.success(f"Pulled {project} from GitHub")
 
         except NotADirectoryError:
-            log.warning(project + " is not a directory, skipped!")
+            log.warning(f"{project} is not a directory, skipped!")
 
 
 # Given the HTTP response, the item list to scroll and the (eventual) message
@@ -52,7 +52,7 @@ def cloneList(response, scroll_list, msg, path):
 
     for item in scroll_list:
         if not os.path.isdir(path + item["name"]):
-            os.system("git clone " + item["clone_url"])
+            os.system(f"git clone {item['clone_url']}")
             log.success(msg + item["name"])
 
 

@@ -13,10 +13,8 @@ dirsToClean = [".cache", "Downloads", "Temporary", "Public"]
 
 def wipeDir(path):
     contents = os.listdir(path)
-
     for toDelete in contents:
-        tmp = path + "/" + toDelete  # Temporary path
-
+        tmp = f"{path}/{toDelete}"
         # Works recursively and deletes the subdirectory
         if os.path.isdir(tmp):
             wipeDir(tmp)
@@ -32,15 +30,13 @@ def garbageCleaner():
     for directory in dirsToClean:
         # Setting up the Current Cleaning Directory
         ccd = homePath + directory
-
         # Ignored the case of an already empty directory (warning given to
         # user)
         if os.path.isdir(ccd) and os.listdir(ccd) != []:
             wipeDir(ccd)
-            log.success("Cleaned " + ccd)
-
+            log.success(f"Cleaned {ccd}")
         else:
-            log.warning(ccd + " not found or already empty")
+            log.warning(f"{ccd} not found or already empty")
 
 
 garbageCleaner()

@@ -16,10 +16,10 @@ class Log():
         self._warningCode = warning
 
     def success(self, msg="YOU must provide a message"):
-        print("{}{}{}".format(self._successCode, msg, self._clearCode))
+        print(f"{self._successCode}{msg}{self._clearCode}")
 
     def error(self, msg="YOU must provide a message"):
-        print("{}{}{}".format(self._errorCode, msg, self._clearCode))
+        print(f"{self._errorCode}{msg}{self._clearCode}")
 
     def warning(self, msg="YOU must provide a message"):
-        print("{}{}{}".format(self._warningCode, msg, self._clearCode))
+        print(f"{self._warningCode}{msg}{self._clearCode}")

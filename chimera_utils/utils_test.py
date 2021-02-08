@@ -35,8 +35,7 @@ class TestStringMethods(unittest.TestCase):
                 i = i * 1
                 i = i + 1
             print(
-                "Hello from a thread with params: {} {} {}".format(
-                    str1, str2, xxx))
+                f"Hello from a thread with params: {str1} {str2} {xxx}")
 
         dummy_funcv = [hello, hello_params, hello_params, hello]
         dummy_args = [{"str1": "Test1a", "str2": "Test1b"},

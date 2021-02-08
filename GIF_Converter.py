@@ -43,7 +43,7 @@ def GIF_Converter():
             log.error("Unsupported file type")
 
     except IndexError:
-        log.warning("Need the path to file")
+        log.error("Need the path to file")
 
 
 GIF_Converter()

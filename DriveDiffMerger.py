@@ -39,7 +39,8 @@ if (platform.system() == "Windows"):
         "Immagini",
         "Foto",
         "Camera Roll",
-        "Saved Pictures"
+        "Saved Pictures",
+        "Zoom",
         ".git"]
 elif (platform.system() == "Linux"):
     homePath = "/home/hmny/"
@@ -109,7 +110,7 @@ def synchDir(remotepath, localpath):
     def getRemoteName(r_file): return r_file.filename
     # Because of fucking Windows "'file.txt'" string representation instead of
     # "file.txt"
-    def getLocalName(l_file): return "{}".format(l_file)
+    def getLocalName(l_file): return (f"{l_file}")
 
     for r_entry, l_entry in tupleIterator(
             remote_entries, local_entries, getRemoteName, getLocalName):
@@ -157,12 +158,10 @@ def DriveDiffMerger():
         # The remote is ASSUMED to be the most updated version
         try:
             synchDir(entry, homePath + dirToSync[entry.filename])
-            log.success("{} synchronized with your Google Drive".format(
-                dirToSync[entry.filename]))
+            log.success(f"{dirToSync[entry.filename]} synchronized with your Google Drive")
         except KeyError:
             log.error(
-                "Missing mapping for Google Drive directory {}".format(
-                    entry.filename))
+                f"Missing mapping for Google Drive directory {entry.filename}")
 
 
 DriveDiffMerger()
