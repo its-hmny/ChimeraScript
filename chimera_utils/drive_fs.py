@@ -136,7 +136,7 @@ class GDriveFileSystem():
             # Permanently delete the file
             remoteFile = self.driveRef.CreateFile({'id': GDrive_fd.uuid})
             remoteFile.Delete()
-    
+
     def removeDir(self, GDrive_fd):
         for entry in self.listDir(GDrive_fd):
             if self.isFile(entry) or self.isLink(entry):
@@ -146,7 +146,6 @@ class GDriveFileSystem():
         # After removing all the element inside the dir descriptor has to go
         remoteDir = self.driveRef.CreateFile({'id': GDrive_fd.uuid})
         remoteDir.Delete()
-
 
 
 if __name__ == "__main__":
