@@ -66,6 +66,7 @@ def mergeFiles(remote, local, remoteParent):
     if r_lastMod > l_lastMod:
         drivefs.downloadFile(remote)
     elif r_lastMod < l_lastMod:
+        drivefs.removeFile(remote)
         drivefs.uploadFile(remoteParent, os.path.abspath(local))
 
 
