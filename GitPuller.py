@@ -34,9 +34,11 @@ def existingRepoPuller(path):
         try:
             # Changes the current working directory to the project one
             os.chdir(path + project)
-            # Pulls from origin, less verbosely as possible, returning confirmation
+            # Pulls from origin, less verbosely as possible, returning
+            # confirmation
             exit_code = os.system("git pull")
-            log.success(f"Pulled {project} from GitHub") if exit_code == 0 else log.error(f"Errors occured pulling {project} from GitHub")
+            log.success(f"Pulled {project} from GitHub") if exit_code == 0 else log.error(
+                f"Errors occured pulling {project} from GitHub")
 
         except NotADirectoryError:
             log.warning(f"{project} is not a directory, skipped!")
