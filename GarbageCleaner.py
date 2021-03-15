@@ -20,8 +20,8 @@ if (platform.system() == "Windows"):
         "Pictures/Camera Roll",
     ]
 elif (platform.system() == "Linux"):
-    homePath = "/home/its-hmny/"
-    dirsToClean = [".cache", "Downloads", "Temporary", "Public"]
+    homePath = "/home/hmny/"
+    dirsToClean = [".cache", "Downloads", "tmp"]
 else:
     log.error("This OS is not supported yet")
     os._exit(os.EX_OSERR)

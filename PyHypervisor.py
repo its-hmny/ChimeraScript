@@ -27,13 +27,14 @@ from chimera_utils import Log, TaskPool
 
 log = Log()
 jobsPool = TaskPool()
+
 usageInfo = """
 Usage: python3 PyHypervisor.py [option] [input] [JSON_subclass]
 Option: -l to execute script from argv[], -j to execute script grouped in a JSON file
 Input: the list of script to execute (-l) or the JSON file (-j)
 Only for JSON file you can name groups each with their own scripts
 and select only one of them to be executed, else every group will be executed
-"""
+            """
 
 
 # Return the complete string that has to be given to os.system() for a

@@ -119,11 +119,11 @@ def Back_up_Loader():
 
     except IndexError:
         log.warning("""
-			You should provide an additional argument: python3 Back_UP_Loader.py [mode]
-			where mode could be:
-			  -c or --compressed     to upload a compressed dump of all the directories
-			  -u or --uncompressed   to upload the directories themselves without any type of compression
-			""")
+You should provide an additional argument: python3 Back_UP_Loader.py [mode]
+where mode could be:
+  -c or --compressed     to upload a compressed dump of all the directories
+  -u or --uncompressed   to upload the directories themselves without any type of compression
+                    """)
 
 
 Back_up_Loader()

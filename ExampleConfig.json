@@ -5,11 +5,11 @@
     [
         {
             "GroupName": "Daily",
-            "ScriptList": ["GitPuller.py", "Back_up_Loader.py"]
+            "ScriptList": ["GitPuller.py", "DriveDiffMerger.py", "Back_up_Loader.py"]
         }, 
         {
             "GroupName": "Update",
-            "ScriptList": ["GitPuller.py", "Update.sh"]
+            "ScriptList": ["Update.sh"]
         }, 
 
         {
@@ -19,7 +19,7 @@
 
         {
             "GroupName": "Backup",
-            "ScriptList": ["Back_up_Loader.py"]
+            "ScriptList": ["DriveDiffMerger.py", "Back_up_Loader.py"]
         }
     ]
 
