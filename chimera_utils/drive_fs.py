@@ -16,7 +16,9 @@ class GDriveFile():
         self._internalData = _apiResponseObject
         # Basic field for easy interaction with the object
         # Last modified timestamp (Unix Epoch)
-        self.lastModified = datetime.strptime(_apiResponseObject['modifiedDate'],"%Y-%m-%dT%H:%M:%S.%fZ").timestamp()
+        self.lastModified = datetime.strptime(
+            _apiResponseObject['modifiedDate'],
+            "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()
         self.filetype = _apiResponseObject['mimeType']
         self.filename = _apiResponseObject['title']
         self.uuid = _apiResponseObject['id']
@@ -88,7 +90,11 @@ class GDriveFileSystem():
         remoteFile = self.driveRef.CreateFile({'id': GDrive_fd.uuid})
         try:
             remoteFile.GetContentFile(GDrive_fd.filename)
-            os.utime(GDrive_fd.filename, times=(GDrive_fd.lastModified, GDrive_fd.lastModified))
+            os.utime(
+                GDrive_fd.filename,
+                times=(
+                    GDrive_fd.lastModified,
+                    GDrive_fd.lastModified))
         except FileNotDownloadableError:
             pass
 
