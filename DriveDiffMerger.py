@@ -57,15 +57,17 @@ else:
 
 # Take a remote version and the local counterpart and update the older ones
 def mergeFiles(remote, local, remoteParent):
-    r_lastMod = datetime.strptime(remote.lastModified, "%Y-%m-%d").timestamp()
+    r_lastMod = remote.lastModified
     l_lastMod = os.path.getmtime(local)
     # When file are merged the more recent modification time
     # is picked to determine which version has to override the counterpart
     # If the date is the same then no change at all happens
 
     if r_lastMod > l_lastMod:
+        log.warning(f"Pulling {local} from remote")
         drivefs.downloadFile(remote)
     elif r_lastMod < l_lastMod:
+        log.warning(f"Pushing {local} to remote")
         drivefs.removeFile(remote)
         drivefs.uploadFile(remoteParent, os.path.abspath(local))
 
@@ -128,15 +130,19 @@ def synchDir(remotepath, localpath):
         # If the current entry doesn't exist locally then simply download its
         elif r_exist and not l_exist:
             if drivefs.isFile(r_entry):
+                log.warning(f"Downloading file {r_entry} from remote")
                 drivefs.downloadFile(r_entry)
             elif drivefs.isDir(r_entry):
+                log.warning(f"Downloading directory {r_entry} from remote")
                 drivefs.downloadDir(r_entry)
 
         # If the current entry doesn't exist remotely then simply upload it
         elif l_exist and not r_exist:
             if os.path.isfile(l_entry):
+                log.warning(f"Uploading file {l_entry} to remote")
                 drivefs.uploadFile(remotepath, l_entry)
             elif os.path.isdir(l_entry):
+                log.warning(f"Uploading directory {l_entry} to remote")
                 drivefs.uploadDir(remotepath, l_entry)
 
     # For recursive call returns to previous directory so the caller can start
