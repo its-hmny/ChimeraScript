@@ -31,11 +31,12 @@ class GDriveFile():
 
 
 class GDriveFileSystem():
-    def __init__(self):
+    def __init__(self, onError=None):
         try:
             (authentication := GoogleAuth()).LocalWebserverAuth()
         except AuthenticationError:
             return None
+        self.onError = onError if onError is not None else print
         self.driveRef = GoogleDrive(authentication)
         del authentication
 
@@ -96,7 +97,7 @@ class GDriveFileSystem():
                     GDrive_fd.lastModified,
                     GDrive_fd.lastModified))
         except FileNotDownloadableError:
-            pass
+            self.onError(GDrive_fd)
 
     def downloadDir(self, GDrive_fd):
         # Create and move in the new root
@@ -145,9 +146,9 @@ class GDriveFileSystem():
     def removeDir(self, GDrive_fd):
         for entry in self.listDir(GDrive_fd):
             if self.isFile(entry) or self.isLink(entry):
-                self.downloadFile(entry)
+                self.removeFile(entry)
             elif self.isDir(entry):
-                self.downloadDir(entry)
+                self.removeDir(entry)
         # After removing all the element inside the dir descriptor has to go
         remoteDir = self.driveRef.CreateFile({'id': GDrive_fd.uuid})
         remoteDir.Delete()
