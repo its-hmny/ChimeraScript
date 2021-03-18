@@ -152,8 +152,10 @@ def synchDir(remotepath, localpath):
 
 def DriveDiffMerger():
     log.warning("An authorization dialog should open...")
-    def error_hndlr(r_file): log.error(f"There's some problem with {r_file.filename}") 
-    
+
+    def error_hndlr(r_file): log.error(
+        f"There's some problem with {r_file.filename}")
+
     global drivefs
     drivefs = Drive_fs(error_hndlr)
 
