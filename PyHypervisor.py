@@ -8,7 +8,7 @@ Note: due to its concurrent nature is higly advised to not use with any scrpt th
 to get line from stdin as parameters, moreover at the moement it doesn't support arguments passing
 so all your script should have a default option in order to work properly.
 
-Example: 
+Example:
     "python3 PyHypervisor.py -l Update.sh EmptyDirRemover.py"
         -> Will execute automatically both Updae.sh and EmptyDirRemover.py
      "python3 PyHypervisor.py -j ExampleConfig.json"
@@ -44,7 +44,7 @@ def getExecutableString(script, interpreter):
     script_mode = oct(os.stat(script).st_mode & 0o700)
     script_has_hashbang = open(script).readline().find("#!") != -1
     # If the script has execution permission and hashbang as first line
-    if  script_mode == oct(0o700) and script_has_hashbang:
+    if script_mode == oct(0o700) and script_has_hashbang:
         return str(os.path.join(os.getcwd(), script))
     # Else interpolate with the correct interpreter
     else:
@@ -62,7 +62,7 @@ def loadScriptFromArray(array):
             toExecute = getExecutableString(string, python_name)
         elif extension == ".sh" and platform.system() != "Windows":
             toExecute = getExecutableString(string, "sh")
-        
+
         new_task = Thread(target=os.system, args=(toExecute, ), name=f_name)
         task_pool.append(new_task)
         new_task.start()
@@ -87,7 +87,7 @@ def loadScriptFromJSON():
 
 
 def PyHypervisor():
-    # Execution option checking 
+    # Execution option checking
     if len(sys.argv) > 2 and sys.argv[1] == "-l":
         loadScriptFromArray(sys.argv[2:])
     elif len(sys.argv) > 2 and sys.argv[1] == "-j":
@@ -102,5 +102,6 @@ def PyHypervisor():
         task.join()
 
     len(task_pool) and log.success("---> All task completed")
+
 
 PyHypervisor()

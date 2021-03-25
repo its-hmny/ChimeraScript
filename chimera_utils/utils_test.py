@@ -22,7 +22,6 @@ class TestStringMethods(unittest.TestCase):
         del dump
         self.assertFalse(os.path.isfile("test.zip"))
 
-
     def test_log(self):
         print("Testing Log")
         log = __import__('log').Log()
