@@ -22,28 +22,6 @@ class TestStringMethods(unittest.TestCase):
         del dump
         self.assertFalse(os.path.isfile("test.zip"))
 
-    def test_concurrency(self):
-        pool = __import__("concurrency").TaskPool()
-        xxx = "Scope test"
-
-        def hello():
-            print("Hello from a thread with no params")
-
-        def hello_params(str1, str2):
-            for i in range(1000000):
-                i = i - 1
-                i = i * 1
-                i = i + 1
-            print(
-                f"Hello from a thread with params: {str1} {str2} {xxx}")
-
-        dummy_funcv = [hello, hello_params, hello_params, hello]
-        dummy_args = [{"str1": "Test1a", "str2": "Test1b"},
-                      {"str1": "Test2a", "str2": "Test2b"}]
-
-        pool.submit(hello)
-        pool.submit_OneToMany(hello_params, *dummy_args)
-        pool.submit_ManyToMany(dummy_funcv, [{}, *dummy_args, {}])
 
     def test_log(self):
         print("Testing Log")

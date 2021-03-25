@@ -18,6 +18,11 @@
         },
 
         {
+            "GroupName": "Test",
+            "ScriptList": ["Back_up_Loader.py", "Back_up_Loader.py", "Back_up_Loader.py"]
+        },
+
+        {
             "GroupName": "Backup",
             "ScriptList": ["DriveDiffMerger.py", "Back_up_Loader.py"]
         }
