@@ -47,18 +47,29 @@ class GDriveFileSystem():
             .ListFile({'q': f"'{item_id}' in parents and trashed=false", 'orderBy': "title"})
             .GetList()
         ]
+    
+    def isGoogleAppsFile(self, GDrive_fd):
+        if not isinstance(GDrive_fd, GDriveFile):
+            raise TypeError("The input isn't a GDriveFile object")
+        return (
+            GDrive_fd.filetype == 'application/vnd.google-apps.document' or
+            GDrive_fd.filetype == 'application/vnd.google-apps.presentation' or
+            GDrive_fd.filetype == 'application/vnd.google-apps.sheet'
+        )
 
     def isDir(self, GDrive_fd):
         if not isinstance(GDrive_fd, GDriveFile):
             raise TypeError("The input isn't a GDriveFile object")
         return GDrive_fd.filetype == 'application/vnd.google-apps.folder'
 
-    def isFile(self, GDrive_fd):
+    def isFile(self, GDrive_fd, allow_google_apps=True):
         if not isinstance(GDrive_fd, GDriveFile):
             raise TypeError("The input isn't a GDriveFile object")
+        isBlocked = self.isGoogleAppsFile(GDrive_fd) if not allow_google_apps else False
         return (
             GDrive_fd.filetype != 'application/vnd.google-apps.folder' and
-            GDrive_fd.filetype != 'application/vnd.google-apps.shortcut'
+            GDrive_fd.filetype != 'application/vnd.google-apps.shortcut' and
+            not isBlocked
         )
 
     def isLink(self, GDrive_fd):

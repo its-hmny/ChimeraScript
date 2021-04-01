@@ -129,7 +129,7 @@ def synchDir(remotepath, localpath):
 
         # If the current entry doesn't exist locally then simply download its
         elif r_exist and not l_exist:
-            if drivefs.isFile(r_entry):
+            if drivefs.isFile(r_entry, allow_google_apps=False):
                 log.warning(f"Downloading file {r_entry} from remote")
                 drivefs.downloadFile(r_entry)
             elif drivefs.isDir(r_entry):
