@@ -23,7 +23,8 @@ def video_to_Gif(input: str, output: str) -> None:
     writer = imageio.get_writer(output, fps=gif_fps)
 
     for i, frame in enumerate(reader):
-        if i % gif_fps == 0 : writer.append_data(frame) 
+        if i % gif_fps == 0:
+            writer.append_data(frame)
 
     writer.close()
     reader.close()
@@ -44,7 +45,9 @@ def GIF_Converter() -> None:
             out_file = file_name + ".gif"
             video_to_Gif(file_path, out_file)
             log.success("Done!")
-        else : log.error("Unsupported file type")
+        else:
+            log.error("Unsupported file type")
 
 
-if __name__ == "__main__" : GIF_Converter()
+if __name__ == "__main__":
+    GIF_Converter()

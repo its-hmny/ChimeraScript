@@ -1,6 +1,6 @@
 """
 garbageCleaner.py is a simple script that I use to clean the location in which I
-usually save my temporary and/or garbage file, wipeDir() works recursively so 
+usually save my temporary and/or garbage file, wipeDir() works recursively so
 everything inside that dir will be deleted (I warned you).
 
 Created by Enea Guidi on 1/1/20. Please check the README.md for further information.
@@ -50,13 +50,16 @@ def GarbageCleaner() -> None:
     # The user can specify his own directories
     user_given_dir = bool(len(sys.argv[1:]))
     # Eventually set the new dirs to clean
-    if user_given_dir : dirsToClean = sys.argv[1:]
+    if user_given_dir:
+        dirsToClean = sys.argv[1:]
 
     for directory in dirsToClean:
         resolver = os.path.abspath if user_given_dir else os.path.join
         # Set up the Current Cleaning Directory based on the input
-        if user_given_dir : ccd = resolver(directory)
-        else : ccd = resolver(homePath, directory)
+        if user_given_dir:
+            ccd = resolver(directory)
+        else:
+            ccd = resolver(homePath, directory)
         # Ignored the case of an already empty directory (warning given)
         if os.path.isdir(ccd) and len(os.listdir(ccd)):
             wipeDir(ccd)
@@ -65,4 +68,5 @@ def GarbageCleaner() -> None:
             log.warning(f"{ccd} not found or already empty")
 
 
-if __name__ == "__main__" : GarbageCleaner()
+if __name__ == "__main__":
+    GarbageCleaner()

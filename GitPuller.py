@@ -1,8 +1,8 @@
 """
-GitPuller is a script that automates, the action of pulling changes of the projects I'm 
+GitPuller is a script that automates, the action of pulling changes of the projects I'm
 currently working on (mine as well as other's) keeping me always up to date with the origin/master.
-I tried to make it less verbose as possible but there will be some warnings and/or 
-authentication request, especially for private repositories. Also it clones all the 
+I tried to make it less verbose as possible but there will be some warnings and/or
+authentication request, especially for private repositories. Also it clones all the
 repositories that currently aren't in the projectDirectory folder as well as all your
 starred repositories that aren't already cloned.
 
@@ -39,15 +39,21 @@ def existingRepoPuller(path: str) -> None:
         if not os.path.isdir(current_path):
             log.warning(f"{project} is not a directory, skipped!")
             continue
-            
+
         exit_code = os.system(f"cd {current_path} && git pull")
-        
-        if exit_code == 0 : log.success(f"Pulled {project} from GitHub") 
-        else : log.error(f"Errors occured pulling {project} from GitHub")
+
+        if exit_code == 0:
+            log.success(f"Pulled {project} from GitHub")
+        else:
+            log.error(f"Errors occured pulling {project} from GitHub")
 
 
 # Given the HTTP response, the item list to scroll and the (eventual) message
-def cloneList(response: Response, repos_list: List[str], msg: str, path: str) -> None:
+def cloneList(
+        response: Response,
+        repos_list: List[str],
+        msg: str,
+        path: str) -> None:
     if response.status_code != 200:
         raise ConnectionRefusedError
 
@@ -90,4 +96,5 @@ def GitPuller() -> None:
         sys.exit(-1)
 
 
-if __name__ == "__main__" : GitPuller()
+if __name__ == "__main__":
+    GitPuller()
