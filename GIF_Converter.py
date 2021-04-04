@@ -8,42 +8,43 @@ you can install with "pip3 install imageio" from command line
 Created by Enea Guidi on 31/08/2019, please check the Readme.md for more information.
 """
 
-import imageio
 import os
 import sys
+import imageio
 from chimera_utils import Log
 
+log = Log()
+supported_file_type = [".mp4", ".mkv"]
 
-# Takes the two path and then copies every frame of the video to the
-# correspondant .gif file
-def video_to_Gif(input, output):
+
+def video_to_Gif(input: str, output: str) -> None:
+    gif_fps = 24
     reader = imageio.get_reader(input)
-    fps = reader.get_meta_data()['fps']
-    writer = imageio.get_writer(output, fps=fps)
+    writer = imageio.get_writer(output, fps=gif_fps)
 
-    for frames in reader:
-        writer.append_data(frames)
+    for i, frame in enumerate(reader):
+        if i % gif_fps == 0 : writer.append_data(frame) 
 
     writer.close()
     reader.close()
 
 
-def GIF_Converter():
-    log = Log()
-    try:
-        inputPath = os.path.abspath(sys.argv[1])
-        inputExtension = os.path.splitext(inputPath)[1]
-        log.success('Converting....')
-
-        if (inputExtension == '.mp4') or (inputExtension == '.mkv'):
-            outputPath = os.path.splitext(inputPath)[0] + '.gif'
-            video_to_Gif(inputPath, outputPath)
-            log.success('Done!')
-        else:
-            log.error("Unsupported file type")
-
-    except IndexError:
+def GIF_Converter() -> None:
+    # At least one file must be provided
+    if len(sys.argv) < 2:
         log.error("Need the path to file")
+        sys.exit(-1)
+
+    for arg in sys.argv[1:]:
+        file_path = os.path.abspath(arg)
+        file_name, file_ext = os.path.splitext(file_path)
+        log.warning(f"Converting {arg}....")
+
+        if file_ext in supported_file_type:
+            out_file = file_name + ".gif"
+            video_to_Gif(file_path, out_file)
+            log.success("Done!")
+        else : log.error("Unsupported file type")
 
 
-GIF_Converter()
+if __name__ == "__main__" : GIF_Converter()
