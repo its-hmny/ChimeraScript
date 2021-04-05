@@ -43,40 +43,45 @@ def existingRepoPuller(path: str) -> None:
         exit_code = os.system(f"cd {current_path} && git pull")
 
         if exit_code == 0:
-            log.success(f"Pulled {project} from GitHub")
+            log.success(f"Pulled {project}")
         else:
-            log.error(f"Errors occured pulling {project} from GitHub")
-
-
-# Given the HTTP response, the item list to scroll and the (eventual) message
-def cloneList(
-        response: Response,
-        repos_list: List[str],
-        msg: str,
-        path: str) -> None:
-    if response.status_code != 200:
-        raise ConnectionRefusedError
-
-    for repo in repos_list:
-        repo_name, repo_url = repo["name"], repo["clone_url"]
-        current_path = os.path.join(path, repo_name)
-        if not os.path.isdir(current_path):
-            os.system(f"git clone {repo_url}")
-            log.success(f"{msg} {repo_name}")
+            log.error(f"Errors occured pulling {project}")
 
 
 def newRepoCloner() -> None:
     # Uses GitHub API to get all my publicly hosted repositories as JSON
     res = get("https://api.github.com/search/repositories?q=user:its-hmny")
-    publicRepos = res.json()["items"]
-    cloneList(res, publicRepos, "Cloned your new repo:", projectDirectory)
+
+    if res.status_code != 200:
+        raise ConnectionError
+    
+    for repo in res.json()["items"]:
+        repo_name, repo_url = repo["name"], repo["clone_url"]
+        current_path = os.path.join(projectDirectory, repo_name)
+        if not os.path.isdir(current_path):
+            exit_code = os.system(f"cd {projectDirectory} && git clone {repo_url}")
+            if exit_code == 0:
+                log.success(f"Cloned your new repo: {repo_name}")
+            else:
+                log.error(f"Errors occured cloning {project}")
 
 
 def starredRepoCloner() -> None:
     # Uses GitHub API to get my starred repos and eventually clone them
     res = get("https://api.github.com/users/its-hmny/starred")
-    starredRepos = res.json()
-    cloneList(res, starredRepos, "Cloned your starred repo:", starredDirectory)
+    
+    if res.status_code != 200:
+        raise ConnectionError
+
+    for repo in res.json():
+        repo_name, repo_url = repo["name"], repo["clone_url"]
+        current_path = os.path.join(starredDirectory, repo_name)
+        if not os.path.isdir(current_path):
+            exit_code = os.system(f"cd {starredDirectory} && git clone {repo_url}")
+            if exit_code == 0:
+                log.success(f"Cloned your starred repo: {repo_name}")
+            else:
+                log.error(f"Errors occured cloning {project}")
 
 
 def GitPuller() -> None:
@@ -91,7 +96,7 @@ def GitPuller() -> None:
     except FileNotFoundError:
         log.error("Error! The project directory doesn't exist")
         sys.exit(-1)
-    except ConnectionRefusedError:
+    except ConnectionError:
         log.error("Error with the GitHub's API request")
         sys.exit(-1)
 

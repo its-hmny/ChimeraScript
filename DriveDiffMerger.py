@@ -15,7 +15,6 @@ Created by Enea Guidi on 17/01/2021. Please check the README.md for more informa
 import os
 import platform
 from chimera_utils import Log, Drive_fs
-from datetime import datetime
 
 log = Log()
 drivefs = None
