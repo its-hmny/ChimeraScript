@@ -54,12 +54,13 @@ def newRepoCloner() -> None:
 
     if res.status_code != 200:
         raise ConnectionError
-    
+
     for repo in res.json()["items"]:
         repo_name, repo_url = repo["name"], repo["clone_url"]
         current_path = os.path.join(projectDirectory, repo_name)
         if not os.path.isdir(current_path):
-            exit_code = os.system(f"cd {projectDirectory} && git clone {repo_url}")
+            exit_code = os.system(
+                f"cd {projectDirectory} && git clone {repo_url}")
             if exit_code == 0:
                 log.success(f"Cloned your new repo: {repo_name}")
             else:
@@ -69,7 +70,7 @@ def newRepoCloner() -> None:
 def starredRepoCloner() -> None:
     # Uses GitHub API to get my starred repos and eventually clone them
     res = get("https://api.github.com/users/its-hmny/starred")
-    
+
     if res.status_code != 200:
         raise ConnectionError
 
@@ -77,7 +78,8 @@ def starredRepoCloner() -> None:
         repo_name, repo_url = repo["name"], repo["clone_url"]
         current_path = os.path.join(starredDirectory, repo_name)
         if not os.path.isdir(current_path):
-            exit_code = os.system(f"cd {starredDirectory} && git clone {repo_url}")
+            exit_code = os.system(
+                f"cd {starredDirectory} && git clone {repo_url}")
             if exit_code == 0:
                 log.success(f"Cloned your starred repo: {repo_name}")
             else:
