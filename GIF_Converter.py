@@ -29,6 +29,7 @@ def video_to_Gif(input: str, output: str) -> None:
     writer.close()
     reader.close()
 
+
 @exception_handler
 def GIF_Converter() -> None:
     # At least one file must be provided

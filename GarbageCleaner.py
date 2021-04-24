@@ -44,6 +44,7 @@ def wipeDir(path: str) -> None:
         else:
             os.remove(toRemove)
 
+
 @exception_handler
 def GarbageCleaner() -> None:
     global dirsToClean

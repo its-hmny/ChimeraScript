@@ -17,7 +17,7 @@ class Log():
 
     def error(self, msg: str, **kwargs):
         self.__console.print(f"[red]{msg}[/red]", **kwargs)
-        
+
     def warning(self, msg: str, **kwargs):
         self.__console.print(f"[yellow]{msg}[/yellow]", **kwargs)
 
@@ -26,17 +26,17 @@ class Log():
         for arg in args:
             inspect(arg, methods=True)
 
-    # This a simple and quick variadic print with option for some styling as well
+    # This a simple and quick variadic print with option for some styling as
+    # well
     def debug(self, *args, **kwargs):
         for arg in args:
             self.__console.print(arg, **kwargs)
-    
+
     # Print documentation both in a single string or markdown format
-    def documentation(self, title: str, doc: str, markdown: bool=False):
+    def documentation(self, title: str, doc: str, markdown: bool = False):
         self.__console.rule(f"[bold yellow]{title}", align="center")
         if markdown:
             md = Markdown(doc)
             self.__console.print(md, justify="center")
         else:
             self.__console.print(f"[bold yellow]{doc}", justify="left")
-
