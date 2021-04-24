@@ -24,7 +24,7 @@ import sys
 import json
 import platform
 from threading import Thread
-from chimera_utils import Log
+from chimera_utils import Log, exception_handler
 
 log = Log()
 task_pool = []
@@ -86,6 +86,7 @@ def loadScriptFromJSON():
             loadScriptFromArray(completeList)
 
 
+@exception_handler
 def PyHypervisor():
     # Execution option checking
     if len(sys.argv) > 2 and sys.argv[1] == "-l":
@@ -93,7 +94,7 @@ def PyHypervisor():
     elif len(sys.argv) > 2 and sys.argv[1] == "-j":
         loadScriptFromJSON()
     else:
-        log.warning(usageInfo)
+        log.documentation(os.path.basename(__file__), usageInfo)
         return -1
 
     # Wait for all the task to complete

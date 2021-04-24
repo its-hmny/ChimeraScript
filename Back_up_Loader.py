@@ -15,7 +15,7 @@ import os
 import sys
 from paramiko.ssh_exception import AuthenticationException
 from paramiko.ssh_exception import SSHException
-from chimera_utils import Log, Compressor
+from chimera_utils import Log, Compressor, exception_handler
 
 # Fixed fields for every OS (platform indipendent)
 destPath = "/public/hmny/"  # The destinaion path on the server
@@ -25,6 +25,13 @@ usrnm = "enea.guidi"
 dirBlacklist = ["node_modules"]
 
 log = Log()
+
+usageInfo = """
+You should provide an additional argument: python3 Back_UP_Loader.py [mode]
+where mode could be:
+  -c or --compressed     to upload a compressed dump of all the directories
+  -u or --uncompressed   to upload the directories themselves without any type of compression
+"""
 
 # Platform specific fields
 if (platform.system() == "Windows"):
@@ -95,6 +102,7 @@ def compressedUpload(sftp):
     os.remove(homePath + "Backup.zip")
 
 
+@exception_handler
 def Back_up_Loader():
     try:
         mode = sys.argv[1]
@@ -118,12 +126,7 @@ def Back_up_Loader():
         log.error("Could not connect to the host")
 
     except IndexError:
-        log.warning("""
-You should provide an additional argument: python3 Back_UP_Loader.py [mode]
-where mode could be:
-  -c or --compressed     to upload a compressed dump of all the directories
-  -u or --uncompressed   to upload the directories themselves without any type of compression
-                    """)
+        log.documentation(os.path.basename(__file__), usageInfo)
 
 
 Back_up_Loader()

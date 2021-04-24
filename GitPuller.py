@@ -15,7 +15,7 @@ import os
 import sys
 import platform
 from typing import List
-from chimera_utils import Log
+from chimera_utils import Log, exception_handler
 from requests import get, Response
 
 log = Log()
@@ -86,6 +86,7 @@ def starredRepoCloner() -> None:
                 log.error(f"Errors occured cloning {project}")
 
 
+@exception_handler
 def GitPuller() -> None:
     try:
         # Pulls the change from the existing project directory

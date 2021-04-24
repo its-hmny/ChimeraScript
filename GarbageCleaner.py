@@ -9,7 +9,7 @@ Created by Enea Guidi on 1/1/20. Please check the README.md for further informat
 import os
 import sys
 import platform
-from chimera_utils import Log
+from chimera_utils import Log, exception_handler
 
 log = Log()
 
@@ -44,7 +44,7 @@ def wipeDir(path: str) -> None:
         else:
             os.remove(toRemove)
 
-
+@exception_handler
 def GarbageCleaner() -> None:
     global dirsToClean
     # The user can specify his own directories

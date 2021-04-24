@@ -8,7 +8,7 @@ Created by Enea Guidi on 20/09/2019. Please check the README.md for more informa
 
 import os
 import sys
-from chimera_utils import Log
+from chimera_utils import Log, exception_handler
 
 log = Log()
 
@@ -30,6 +30,7 @@ def recursiveClean(toClean: str) -> None:
         os.rmdir(toClean)
 
 
+@exception_handler
 def EmptyDirRemover() -> None:
     if len(sys.argv[1:]):
         startingDir = os.path.abspath(sys.argv[1])

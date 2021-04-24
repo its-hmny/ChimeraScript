@@ -14,7 +14,7 @@ Created by Enea Guidi on 17/01/2021. Please check the README.md for more informa
 
 import os
 import platform
-from chimera_utils import Log, Drive_fs
+from chimera_utils import Log, Drive_fs, exception_handler
 
 log = Log()
 drivefs = None
@@ -149,6 +149,7 @@ def synchDir(remotepath, localpath):
     os.chdir('..')
 
 
+@exception_handler
 def DriveDiffMerger():
     log.warning("An authorization dialog should open...")
 

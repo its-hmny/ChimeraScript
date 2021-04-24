@@ -11,7 +11,7 @@ Created by Enea Guidi on 31/08/2019, please check the Readme.md for more informa
 import os
 import sys
 import imageio
-from chimera_utils import Log
+from chimera_utils import Log, exception_handler
 
 log = Log()
 supported_file_type = [".mp4", ".mkv"]
@@ -29,7 +29,7 @@ def video_to_Gif(input: str, output: str) -> None:
     writer.close()
     reader.close()
 
-
+@exception_handler
 def GIF_Converter() -> None:
     # At least one file must be provided
     if len(sys.argv) < 2:
