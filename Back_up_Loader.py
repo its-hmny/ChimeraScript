@@ -30,7 +30,7 @@ log = Log()
 if (platform.system() == "Windows"):
     home_path = "C:/Users/eneag/"
     dir_to_upload = ["Pictures", "Desktop/Progetti",
-                   "Desktop/Università", "Documents"]
+                     "Desktop/Università", "Documents"]
 elif (platform.system() == "Linux"):
     home_path = "/home/hmny/"
     dir_to_upload = ["Pictures", "Projects", "University", "Documents"]
@@ -38,10 +38,11 @@ else:
     log.error("This OS is not supported yet")
     os._exit(os.EX_OSERR)
 
+
 def get_folder_size(parent, folder):
     vec_sizes = []
     complete_path = os.path.join(parent, folder)
-    
+
     for entry in os.scandir(complete_path):
         if entry.is_file():
             vec_sizes.append(entry.stat().st_size)
@@ -65,7 +66,7 @@ def recursive_put(sftp, toUpload, destination, on_upload_completed):
                 continue
             elif os.path.isfile(local):
                 sftp.put(local, remote)
-                on_upload_completed(os.stat(entry).st_size, entry)         
+                on_upload_completed(os.stat(entry).st_size, entry)
 
     except PermissionError:
         log.error(toUpload + " couldn't be opened")
@@ -78,8 +79,12 @@ def start_upload(sftp):
     sftp.chmod(dest_path, mode=700)
     sftp.chdir(dest_folder)
 
-    total_upload_size = [get_folder_size(home_path, up_dir) for up_dir in dir_to_upload] 
-    progress_bar, update_bar = log.progress_bar_builder("Uploading", total_upload_size)
+    total_upload_size = [
+        get_folder_size(
+            home_path,
+            up_dir) for up_dir in dir_to_upload]
+    progress_bar, update_bar = log.progress_bar_builder(
+        "Uploading", total_upload_size)
 
     with progress_bar:
         for up_dir in dir_to_upload:

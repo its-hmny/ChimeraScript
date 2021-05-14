@@ -15,17 +15,20 @@ from rich.progress import (
     SpinnerColumn
 )
 
+
 class Log():
     def __init__(self):
         self.__progress = Progress(
             SpinnerColumn(),
-            TextColumn("[progress.description]{task.description} {task.fields[current]}"), 
-            "•", BarColumn(), "•",
+            TextColumn("[progress.description]{task.description} {task.fields[current]}"),
+            "•",
+            BarColumn(),
+            "•",
             TransferSpeedColumn(),
             TimeRemainingColumn(),
             console=Console(),
-            transient=True, expand=True
-        )
+            transient=True,
+            expand=True)
         self.__console = self.__progress.console
 
     def success(self, msg: str, **kwargs):
@@ -57,14 +60,13 @@ class Log():
             self.__console.print(f"[bold yellow]{doc}", justify="left")
 
     # Construct and return a tuple with ...
-    def progress_bar_builder(self, label: str, total: int, current: str=""):
+    def progress_bar_builder(self, label: str, total: int, current: str = ""):
         task_id = self.__progress.add_task(label, total, current=current)
 
         def update_task(increment: int, current: str):
             self.__progress.update(task_id, current=current, advance=increment)
-        
-        return (self.__progress, update_task)
 
+        return (self.__progress, update_task)
 
 
 if __name__ == "__main__":
