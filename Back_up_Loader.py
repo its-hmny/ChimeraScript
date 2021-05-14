@@ -8,115 +8,95 @@ Note: it requires pysftp as third party library, you can install it with "pip3 i
 Created by Enea Guidi on 08/11/2019. Please check the README.md for more informations
 """
 
-import pysftp
-import getpass
 import platform
+import getpass
+import pysftp
 import os
-import sys
+
 from paramiko.ssh_exception import AuthenticationException
 from paramiko.ssh_exception import SSHException
-from chimera_utils import Log, Compressor, exception_handler
+from chimera_utils import Log, exception_handler
 
 # Fixed fields for every OS (platform indipendent)
-destPath = "/public/hmny/"  # The destinaion path on the server
-destFolder = destPath + "Backup/"
+dest_path = "/public/hmny/"  # The destinaion path on the server
+dest_folder = dest_path + "Backup/"
 hostname = "pinkerton.cs.unibo.it"
 usrnm = "enea.guidi"
-dirBlacklist = ["node_modules"]
+dir_blacklist = ["node_modules", "Musica", "Immagini", "Video"]
 
 log = Log()
 
-usageInfo = """
-You should provide an additional argument: python3 Back_UP_Loader.py [mode]
-where mode could be:
-  -c or --compressed     to upload a compressed dump of all the directories
-  -u or --uncompressed   to upload the directories themselves without any type of compression
-"""
-
 # Platform specific fields
 if (platform.system() == "Windows"):
-    homePath = "C:/Users/eneag/"
-    dirToUpload = ["Pictures", "Desktop/Progetti",
+    home_path = "C:/Users/eneag/"
+    dir_to_upload = ["Pictures", "Desktop/Progetti",
                    "Desktop/Università", "Documents"]
 elif (platform.system() == "Linux"):
-    homePath = "/home/hmny/"
-    dirToUpload = ["Pictures", "Projects", "University", "Documents"]
+    home_path = "/home/hmny/"
+    dir_to_upload = ["Pictures", "Projects", "University", "Documents"]
 else:
     log.error("This OS is not supported yet")
     os._exit(os.EX_OSERR)
 
+def get_folder_size(parent, folder):
+    vec_sizes = []
+    complete_path = os.path.join(parent, folder)
+    
+    for entry in os.scandir(complete_path):
+        if entry.is_file():
+            vec_sizes.append(entry.stat().st_size)
+        elif entry.is_dir() and entry.name not in dir_blacklist:
+            get_folder_size(folder, entry)
 
-def recursivePut(sftpConnection, toUpload, destination):
+    return sum(vec_sizes)
+
+
+def recursive_put(sftp, toUpload, destination, on_upload_completed):
     try:
         for entry in os.listdir(toUpload):
             local = os.path.join(toUpload, entry)
             remote = f"{destination}/{entry}"
 
-            if os.path.isdir(local) and dirBlacklist.count(entry) == 0:
-                sftpConnection.makedirs(remote)
-                recursivePut(sftpConnection, local, remote)
+            if os.path.isdir(local) and dir_blacklist.count(entry) == 0:
+                sftp.makedirs(remote)
+                recursive_put(sftp, local, remote, on_upload_completed)
                 continue
             elif os.path.islink(local):
                 continue
             elif os.path.isfile(local):
-                sftpConnection.put(local, remote)
+                sftp.put(local, remote)
+                on_upload_completed(os.stat(entry).st_size, entry)         
 
     except PermissionError:
         log.error(toUpload + " couldn't be opened")
 
 
-def uncompressedUpload(sftp):
+def start_upload(sftp):
     # Creates the destination if it doesn't exist
-    sftp.makedirs(destFolder)
+    sftp.makedirs(dest_folder)
     # Private access to only owner
-    sftp.chmod(destPath, mode=700)
-    sftp.chdir(destFolder)
+    sftp.chmod(dest_path, mode=700)
+    sftp.chdir(dest_folder)
 
-    for up_dir in dirToUpload:
-        cwd = homePath + up_dir
-        remote_cwd = destFolder + up_dir.split("/")[-1]
-        sftp.makedirs(remote_cwd)
-        recursivePut(sftp, cwd, remote_cwd)
-        log.success(cwd + " has been uploaded")
+    total_upload_size = [get_folder_size(home_path, up_dir) for up_dir in dir_to_upload] 
+    progress_bar, update_bar = log.progress_bar_builder("Uploading", total_upload_size)
 
-
-def compressedUpload(sftp):
-    # Put all the desired directory in a compressed file
-    dump = Compressor(homePath + "Backup.zip")
-    for up_dir in dirToUpload:
-        dump.compressDir(homePath + up_dir, blacklist=dirBlacklist)
-        log.success(f"{up_dir} compressed")
-
-    if errors := dump.runChecks():
-        log.error(
-            f"Test on the compressed archive returned errors: {errors}")
-
-    del dump
-
-    # Creates the destination path with the correct attributes
-    sftp.makedirs(destPath)
-    sftp.chmod(destPath, mode=700)
-    sftp.chdir(destPath)
-
-    sftp.put(homePath + "Backup.zip", destPath)
-    os.remove(homePath + "Backup.zip")
+    with progress_bar:
+        for up_dir in dir_to_upload:
+            cwd = home_path + up_dir
+            remote_cwd = dest_folder + up_dir.split("/")[-1]
+            sftp.makedirs(remote_cwd)
+            recursive_put(sftp, cwd, remote_cwd, update_bar)
+            log.success(cwd + " has been uploaded")
 
 
 @exception_handler
 def Back_up_Loader():
     try:
-        mode = sys.argv[1]
         pswd = getpass.getpass(prompt="Please insert password: ")
         with pysftp.Connection(host=hostname, username=usrnm, password=pswd) as sftp:
             log.warning("Connection established")
-
-            if mode == "--compressed" or mode == "-c":
-                compressedUpload(sftp)
-            elif mode == "--uncompressed" or mode == "-u":
-                uncompressedUpload(sftp)
-            else:
-                log.error(f"Unrecognized arg: {mode}")
-
+            start_upload(sftp)
             sftp.close()
 
     except AuthenticationException:
@@ -124,9 +104,6 @@ def Back_up_Loader():
 
     except SSHException:
         log.error("Could not connect to the host")
-
-    except IndexError:
-        log.documentation(os.path.basename(__file__), usageInfo)
 
 
 Back_up_Loader()
