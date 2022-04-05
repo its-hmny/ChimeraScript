@@ -1,9 +1,25 @@
 """
-TODO: Add script docstring
+ChimeraScript - GitPuller.py
+
+This script allows to keep synchronized personal and starred repositories on GitHub
+with the local copies on your machine. The CLI interface presents two subcommand "repos" 
+and "stars" to interact with both the categories of repositories.  
+
+Example:
+    To clone and pull all the starred repo, use::
+        $ python3 GitPuller.py stars dir_path --clone_new
+
+    To pull all your repositories ignoring the archived ones, use::
+        $ python3 GitPuller.py repos dir_path --ignore_archived
+
+
+Copyright 2020 Enea Guidi (hmny). All rights reserved.
+This file are distributed under the General Public License v 3.0.
+A copy of abovesaid license can be found in the LICENSE file.
 """
 
 from datetime import datetime
-from os import system
+from os import PathLike, system
 from os.path import abspath, basename, exists, join
 
 from fire import Fire
@@ -14,9 +30,17 @@ from rich.console import Console
 console = Console(record=True)
 
 
-def pull_stars(path: str, clone_new: bool = False) -> None:
+def fetch_stars(path: PathLike, clone_new: bool = False) -> None:
     """
-    TODO: Add function docstring
+    Fetches a list of starred repositories from GitHub API, pulls the already existent repositories
+    in the given path and eventually clones the missing ones (if the "clone_new" flag has been set)
+
+    Args:
+        path (Pathlike): The path where we want to pull/clone the starred repo
+        clone_missing (bool): Optional flag to clone repositories that are not present in "path"
+
+    Raises:
+        ConnectionError: Error encountered during GitHub API call
     """
     # Extract the absolute path to the folder containing the repos
     folder_abspath = abspath(path)
@@ -47,9 +71,18 @@ def pull_stars(path: str, clone_new: bool = False) -> None:
                 console.print(f"[bold green]{name} cloned successfully[/bold green]")
 
 
-def pull_repo(path: str, clone_new: bool = False, ignore_archived: bool = False) -> None:
+def fetch_repos(path: str, clone_new: bool = False, ignore_archived: bool = False) -> None:
     """
-    TODO: Add function docstring
+    Fetches a list of starred repositories from GitHub API, pulls the already existent repositories
+    in the given path and eventually clones the missing ones (if the "clone_new" flag has been set)
+
+    Args:
+        path (Pathlike): The path where we want to pull/clone the starred repo
+        clone_missing (bool): Optional flag to clone repositories that are not present in "path"
+        ignore_archived (bool): Optional flag to ignore archived repositories
+
+    Raises:
+        ConnectionError: Error encountered during GitHub API call
     """
     # Extract the absolute path to the folder containing the repos
     folder_abspath = abspath(path)
@@ -75,7 +108,7 @@ def pull_repo(path: str, clone_new: bool = False, ignore_archived: bool = False)
             else:
                 console.print(f"[bold green]{name} pulled successfully[/bold green]")
 
-        # If the repo doesn't already exist and the "clone_new" flag is active then clones the repo from GitHub
+        # If it doesn't already exist and the "clone_new" flag is active, clones the repo from GitHub
         if not exists(join(folder_abspath, name)) and clone_new is True:
             cmd = f"cd {folder_abspath} && git clone {clone_url}"
             if system(cmd) != 0:
@@ -86,7 +119,7 @@ def pull_repo(path: str, clone_new: bool = False, ignore_archived: bool = False)
 
 if __name__ == "__main__":
     try:
-        Fire({"repos": pull_repo, "stars": pull_stars})
+        Fire({"repos": fetch_repos, "stars": fetch_stars})
     except KeyboardInterrupt:
         console.print("[yellow]Interrupt received, closing now...[/yellow]")
     except Exception:
