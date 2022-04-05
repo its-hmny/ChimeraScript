@@ -18,7 +18,33 @@ def pull_stars(path: str, clone_new: bool = False) -> None:
     """
     TODO: Add function docstring
     """
-    pass
+    # Extract the absolute path to the folder containing the repos
+    folder_abspath = abspath(path)
+    # Uses GitHub API to get a list of all my public repositories
+    res = get("https://api.github.com/users/its-hmny/starred")
+
+    if res.status_code != 200:
+        raise ConnectionError(f"Received {res.status_code} from GitHub API")
+
+    for repo in res.json():
+        # Destructure the needed properties
+        name, clone_url = repo["name"], repo["clone_url"]
+
+        # If the repo already exist in the folder then pulls the latest changes
+        if exists(join(folder_abspath, name)):
+            cmd = f"cd {join(folder_abspath, name)} && git pull"
+            if system(cmd) != 0:
+                console.print(f"[bold red]Error while pulling {name}[/bold red]")
+            else:
+                console.print(f"[bold green]{name} pulled successfully[/bold green]")
+
+        # If it doesn't already exist and the "clone_new" flag is active, clones the repo from GitHub
+        if not exists(join(folder_abspath, name)) and clone_new is True:
+            cmd = f"cd {folder_abspath} && git clone {clone_url}"
+            if system(cmd) != 0:
+                console.print(f"[bold red]Error while cloning {name}[/bold red]")
+            else:
+                console.print(f"[bold green]{name} cloned successfully[/bold green]")
 
 
 def pull_repo(path: str, clone_new: bool = False, ignore_archived: bool = False) -> None:
