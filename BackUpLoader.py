@@ -1,8 +1,13 @@
+"""
+TODO Add docstring
+"""
 from asyncio import gather, run
 from datetime import datetime
+from distutils.command.upload import upload
 from os import PathLike
 from os.path import abspath, basename
 from typing import List
+from tarfile import open as open_tar
 
 from asyncssh import connect, scp
 from fire import Fire
@@ -13,21 +18,29 @@ console = Console(record=True)
 
 
 async def scp_path(path: PathLike, host: str = "localhost", user: str = "root", psw: str = ""):
-    """TODO add docstrig"""
+    """
+    TODO add docstrig
+    """
     console.print(f"[bold yellow]Uploading {path}...[/bold yellow]")
 
     async with connect(host, username=user, password=psw) as conn:
-        await scp(path, (conn, "/public/hmny"), preserve=True, recurse=True)
+        await scp(path, (conn, f"/public/hmny/{basename(path)}"), preserve=True, recurse=True)
 
     console.print(f"[bold green]Completed upload of {path}[/bold green]")
 
 
-def upload_backup(*args: List[PathLike], zip_archive: bool = False):
-    """TODO add docstrig"""
+def upload_backup(*args: List[PathLike], compress: bool = False):
+    """
+    TODO add docstrig
+    """
     upload_paths = [abspath(path) for path in args]
 
-    if zip_archive is True:
-        raise Exception("Zip functionalities not yet implemented")
+    # Compress the uploads path into a .tar.gz archive
+    if compress is True:
+        with open_tar("/tmp/dump.tar.gz", "w:gz") as archive:
+            _ = [archive.add(path) for path in upload_paths]
+            # Overwrites the upload_paths so that only the archive is uploaded
+            upload_paths = ["/tmp/dump.tar.gz"]
 
     host = console.input(prompt="[bold yellow]Insert host name or IP: [/bold yellow]")
     username = console.input(prompt="[bold yellow]Insert your username: [/bold yellow]")
