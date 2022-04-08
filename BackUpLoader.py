@@ -3,7 +3,6 @@ TODO Add docstring
 """
 from asyncio import gather, run
 from datetime import datetime
-from distutils.command.upload import upload
 from os import PathLike
 from os.path import abspath, basename
 from typing import List
@@ -17,7 +16,7 @@ from rich.console import Console
 console = Console(record=True)
 
 
-async def scp_path(path: PathLike, host: str = "localhost", user: str = "root", psw: str = ""):
+async def scp_path(path: PathLike, host: str, user: str, psw: str):
     """
     TODO add docstrig
     """
@@ -29,33 +28,52 @@ async def scp_path(path: PathLike, host: str = "localhost", user: str = "root", 
     console.print(f"[bold green]Completed upload of {path}[/bold green]")
 
 
-def upload_backup(*args: List[PathLike], compress: bool = False):
+def compress_paths(*args: List[PathLike], host: str = None, username: str = None):
     """
     TODO add docstrig
     """
-    upload_paths = [abspath(path) for path in args]
+    # If not provided asks the user to fill in username and destination host (IP or domain name)
+    if host is None:
+        host = console.input(prompt="[bold yellow]Insert host name or IP: [/bold yellow]")
+    if username is None:
+        username = console.input(prompt="[bold yellow]Insert your username: [/bold yellow]")
 
-    # Compress the uploads path into a .tar.gz archive
-    if compress is True:
-        with open_tar("/tmp/dump.tar.gz", "w:gz") as archive:
-            _ = [archive.add(path) for path in upload_paths]
-            # Overwrites the upload_paths so that only the archive is uploaded
-            upload_paths = ["/tmp/dump.tar.gz"]
-
-    host = console.input(prompt="[bold yellow]Insert host name or IP: [/bold yellow]")
-    username = console.input(prompt="[bold yellow]Insert your username: [/bold yellow]")
+    # Asks the user ot insert the access password
     password = console.input(prompt="[bold red]Insert your password: [/bold red]", password=True)
 
-    async def wrapper():
-        upload_tasks = [scp_path(path, host, username, password) for path in upload_paths]
-        await gather(*upload_tasks)
+    # Compress the uploads path into a .tar.gz archive
+    with open_tar("/tmp/archive.tar.gz", "w:gz") as archive:
+        for path in args:
+            archive.add(abspath(path))
 
-    run(wrapper())
+    async def wrapper():  # Uploads the archive to the remote location
+        await gather(scp_path("/tmp/archive.tar.gz", host, username, password))
+
+    run(wrapper())  # Waits for all coroutines to complete
+
+
+def upload_paths(*args: List[PathLike], host: str = None, username: str = None):
+    """
+    TODO add docstrig
+    """
+    # If not provided asks the user to fill in username and destination host (IP or domain name)
+    if host is None:
+        host = console.input(prompt="[bold yellow]Insert host name or IP: [/bold yellow]")
+    if username is None:
+        username = console.input(prompt="[bold yellow]Insert your username: [/bold yellow]")
+
+    # Asks the user ot insert the access password
+    password = console.input(prompt="[bold red]Insert your password: [/bold red]", password=True)
+
+    async def wrapper():  # Uploads each path on its coroutine and with its own connection
+        await gather(*[scp_path(abspath(path), host, username, password) for path in args])
+
+    run(wrapper())  # Waits for all coroutines to complete
 
 
 if __name__ == "__main__":
     try:
-        Fire(upload_backup)
+        Fire({"raw": upload_paths, "compress": compress_paths})
     except KeyboardInterrupt:
         console.print("[yellow]Interrupt received, closing now...[/yellow]")
     except Exception:
