@@ -2,8 +2,8 @@
 ChimeraScript - GitPuller.py
 
 This script allows to keep synchronized personal and starred repositories on GitHub
-with the local copies on your machine. The CLI interface presents two subcommand "repos" 
-and "stars" to interact with both the categories of repositories.  
+with the local copies on your machine. The CLI interface presents two subcommand "repos"
+and "stars" to interact with both the categories of repositories.
 
 Example:
     To clone and pull all the starred repo, use::
@@ -13,7 +13,7 @@ Example:
         $ python3 GitPuller.py repos dir_path --ignore_archived
 
 
-Copyright 2020 Enea Guidi (hmny). All rights reserved.
+Copyright 2022 Enea Guidi (hmny). All rights reserved.
 This file are distributed under the General Public License v 3.0.
 A copy of abovesaid license can be found in the LICENSE file.
 """

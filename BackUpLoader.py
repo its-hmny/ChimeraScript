@@ -1,11 +1,11 @@
 """
 ChimeraScript - BackUpLoader.py
 
-This script allows automation of the backup process by copying sensitive folder and files 
+This script allows automation of the backup process by copying sensitive folder and files
 to a remote server. The CLI presents two subcommand "raw" and "compress" to upload the folder/files
 as they are or to compress them in a .tar.gz archive before uploading it to the server.
-Both method allow the user to specificy username and hostname from the CLI and avoid manual insertion,
-either way the password (and the eventually missing data) will be requested via prompt.
+Both method allow the user to specificy username and hostname from the CLI and avoid manual
+insertion, either way the password (and the eventually missing data) will be requested via prompt.
 
 Example:
     To upload the current folder without compression use::
@@ -23,7 +23,7 @@ from asyncio import gather, run
 from datetime import datetime
 from os import PathLike
 from os.path import abspath, basename
-from typing import List, Optional
+from typing import List
 from tarfile import open as open_tar
 
 from asyncssh import connect, scp
@@ -37,7 +37,7 @@ console = Console(record=True)
 async def scp_path(path: PathLike, host: str, user: str, psw: str):
     """
     Uploads the given local (absolute) path to the remote location/server (the host).
-    Handles connection establishment and authentication with the host via username and password. 
+    Handles connection establishment and authentication with the host via username and password.
 
     Args:
         path (Pathlike): The local path (file or folder) to be uploaded
@@ -93,7 +93,7 @@ def upload_paths(*args: List[PathLike], host: str = None, username: str = None):
     Args:
         args (List[Pathlike]): List of relative/absolute paths to be uploaded
         host (Optional[str]): The hostname or IP address of the remote server
-        user (Optional[str]): The username to be used for authentication    
+        user (Optional[str]): The username to be used for authentication
     """
     # If not provided asks the user to fill in username and destination host (IP or domain name)
     if host is None:

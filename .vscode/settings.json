@@ -10,5 +10,13 @@
     "--style={based_on_style: facebook, column_limit: 100, indent_width: 4}"
   ],
 
-  "cSpell.words": ["Enea", "Guidi", "hmny"]
+  "cSpell.words": [
+    "asyncssh",
+    "Enea",
+    "Guidi",
+    "hmny",
+    "pylint",
+    "unibo",
+    "yapf"
+  ]
 }
