@@ -1,11 +1,29 @@
 """
-TODO Add docstring
+ChimeraScript - BackUpLoader.py
+
+This script allows automation of the backup process by copying sensitive folder and files 
+to a remote server. The CLI presents two subcommand "raw" and "compress" to upload the folder/files
+as they are or to compress them in a .tar.gz archive before uploading it to the server.
+Both method allow the user to specificy username and hostname from the CLI and avoid manual insertion,
+either way the password (and the eventually missing data) will be requested via prompt.
+
+Example:
+    To upload the current folder without compression use::
+        $ python3 BackUpLoader.py raw .
+
+    To upload your home directory with compression use::
+        $ python3 BackUpLoader.py compress ~ --username=enea.guidi --host=pinkerton.cs.unibo.it
+
+
+Copyright 2022 Enea Guidi (hmny). All rights reserved.
+This file are distributed under the General Public License v 3.0.
+A copy of abovesaid license can be found in the LICENSE file.
 """
 from asyncio import gather, run
 from datetime import datetime
 from os import PathLike
 from os.path import abspath, basename
-from typing import List
+from typing import List, Optional
 from tarfile import open as open_tar
 
 from asyncssh import connect, scp
@@ -18,7 +36,17 @@ console = Console(record=True)
 
 async def scp_path(path: PathLike, host: str, user: str, psw: str):
     """
-    TODO add docstrig
+    Uploads the given local (absolute) path to the remote location/server (the host).
+    Handles connection establishment and authentication with the host via username and password. 
+
+    Args:
+        path (Pathlike): The local path (file or folder) to be uploaded
+        host (str): The hostname or IP address of the remote server
+        user (str): The username to be used for authentication
+        psw (str): The password for the abovesaid user
+
+    Raises:
+        SFTPFailure: Error encountered during upload
     """
     console.print(f"[bold yellow]Uploading {path}...[/bold yellow]")
 
@@ -30,7 +58,13 @@ async def scp_path(path: PathLike, host: str, user: str, psw: str):
 
 def compress_paths(*args: List[PathLike], host: str = None, username: str = None):
     """
-    TODO add docstrig
+    Handles the compression of the given paths to in a .tar.zg archive and the upload of the
+    latter to a remote server
+
+    Args:
+        args (List[Pathlike]): List of relative/absolute paths to be compressed
+        host (Optional[str]): The hostname or IP address of the remote server
+        user (Optional[str]): The username to be used for authentication
     """
     # If not provided asks the user to fill in username and destination host (IP or domain name)
     if host is None:
@@ -54,7 +88,12 @@ def compress_paths(*args: List[PathLike], host: str = None, username: str = None
 
 def upload_paths(*args: List[PathLike], host: str = None, username: str = None):
     """
-    TODO add docstrig
+    Handles the "concurrent" upload of the given paths to the remote server without compression
+
+    Args:
+        args (List[Pathlike]): List of relative/absolute paths to be uploaded
+        host (Optional[str]): The hostname or IP address of the remote server
+        user (Optional[str]): The username to be used for authentication    
     """
     # If not provided asks the user to fill in username and destination host (IP or domain name)
     if host is None:
