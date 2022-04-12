@@ -6,28 +6,52 @@ https://www.the-analytics.club/download-youtube-videos-in-python/
 https://typer.tiangolo.com/
 """
 from datetime import datetime
-from os.path import basename
+from os.path import basename, isdir, join
+from posixpath import abspath
+from typing import Literal
 
 from fire import Fire
-from pytube import YouTube
+from pytube import Playlist, YouTube as Video
 from rich.console import Console
+
+# Type alias for available resolution in YouTube
+Resolution = Literal["360p", "720p", "1080p", "2K", "4K", "8K"]
 
 # Rich console instance for pretty printing on the terminal
 console = Console(record=True)
 
 
-def main():
+def download_playlist(url: str, out: str = ".", res: Resolution = "1080p", captions: bool = False):
     """
     TODO Add pydoc annotation
     """
-    console.print("[green]Hello world[/green]")
-    YouTube('https://www.youtube.com/watch?v=tt2k8PGm-TI'
-           ).streams.get_highest_resolution().download()
+    console.print(url, out, res, captions)
+
+
+def download_video(url: str, out: str = ".", res: Resolution = "1080p", captions: bool = False):
+    """
+    TODO Add pydoc annotation
+    """
+    if not isdir(abspath(out)):
+        console.log(f"{abspath(out)} is not a directory")
+        return
+
+    yt_video = Video(url)  # get a reference the the YouTube video object
+    # Filters out the desired stream chosen by the user
+    stream, *_ = yt_video.streams.filter(res=res, file_extension='mp4')
+    # And downloads it in the requested directory, eventually overwriting the previous
+    stream.download(out, skip_existing=False)
+
+    # If the user wants the captions/subtitles as well and they're available then downloads as .srt
+    if captions and yt_video.captions.get("en") is not None:
+        subtitles = yt_video.captions.get("en").generate_srt_captions()
+        export_path = join(abspath(out), f"{yt_video.title}.srt")
+        open(export_path, "w", encoding="UTF-8").write(subtitles).close()
 
 
 if __name__ == "__main__":
     try:
-        Fire(main)
+        Fire({"playlist": download_playlist, "video": download_video})
     except KeyboardInterrupt:
         console.print("[yellow]Interrupt received, closing now...[/yellow]")
     except Exception:
