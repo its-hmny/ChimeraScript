@@ -25,7 +25,21 @@ def download_playlist(url: str, out: str = ".", res: Resolution = "1080p", capti
     """
     TODO Add pydoc annotation
     """
-    console.print(url, out, res, captions)
+    if not isdir(abspath(out)):
+        console.log(f"{abspath(out)} is not a directory")
+        return
+
+    yt_playlist = Playlist(url)  # Gets a reference to the playlist object
+    # The out folder will be named as the playlist and be inside "out" path
+    out_folder = join(abspath(out), yt_playlist.name)
+
+    # Creates the out folder if non already existent
+    if not exists(out_folder):
+        mkdir(out_folder, mode=0o666)
+
+    # For each video in the playlist starts a download with the requested params
+    for item in yt_playlist.videos:
+        download_video(item.url, out_folder, res, captions)
 
 
 def download_video(url: str, out: str = ".", res: Resolution = "1080p", captions: bool = False):
