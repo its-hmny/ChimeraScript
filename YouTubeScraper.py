@@ -1,12 +1,28 @@
 """
-TODO Add pydoc annotation
+ChimeraScript - YouTubeScraper.py
 
-https://towardsdatascience.com/the-easiest-way-to-download-youtube-videos-using-python-2640958318ab
-https://www.the-analytics.club/download-youtube-videos-in-python/
-https://typer.tiangolo.com/
+This script allows to automate download of videos and whole playlists from YouTube.
+The CLI presents two subcommands: "video" or "playlist" either to download a single video
+or a list of videos from a public playlist. Both commands allows the user to specify the 
+desired resolution as well download captions as .srt (standard subtitle format) files.
+
+Example:
+    To download the YouTube Rewind 2018 video with captions use::
+        $ python3 YouTubeScraper.py video https://www.youtube.com/watch?v=YbJOTdZBX1g \ 
+            ~/Videos --captions
+
+    To download this tutorial playlist in 720p use::
+        $ python3 YouTubeScraper.py playlist \
+            https://www.youtube.com/watch?v=RAwntanK4wQ&list=PLwgFb6VsUj_lQTpQKDtLXKXElQychT_2j \
+            ~/Videos --res=720p
+
+Copyright 2022 Enea Guidi (hmny). All rights reserved.
+This file are distributed under the General Public License v 3.0.
+A copy of abovesaid license can be found in the LICENSE file.
 """
 from datetime import datetime
-from os.path import basename, isdir, join
+from os import PathLike, mkdir
+from os.path import basename, exists, isdir, join
 from posixpath import abspath
 from typing import Literal
 
@@ -21,9 +37,20 @@ Resolution = Literal["360p", "720p", "1080p", "2K", "4K", "8K"]
 console = Console(record=True)
 
 
-def download_playlist(url: str, out: str = ".", res: Resolution = "1080p", captions: bool = False):
+def download_playlist(
+    url: str, out: PathLike = ".", res: Resolution = "1080p", captions: bool = False
+):
     """
-    TODO Add pydoc annotation
+    Downloads a whole playlist given her YouTube URL. Eventually is possible to
+    specify a resolution (default is 1080p) and enable download of captions as .srt file.
+    The downloaded files will all be saved in a folder in the "out" directory named
+    as the playlist, in case of file conflict the destination will be overwritten
+
+    Args:
+        url (str): The youTube URL for the given playlist
+        out (PathLike): The relative or absolute destination folder
+        res (Resolution): The desired resolution of download
+        captions (bool): Flag to download captions as .srt files
     """
     if not isdir(abspath(out)):
         console.log(f"{abspath(out)} is not a directory")
@@ -42,17 +69,28 @@ def download_playlist(url: str, out: str = ".", res: Resolution = "1080p", capti
         download_video(item.url, out_folder, res, captions)
 
 
-def download_video(url: str, out: str = ".", res: Resolution = "1080p", captions: bool = False):
+def download_video(
+    url: str, out: PathLike = ".", res: Resolution = "1080p", captions: bool = False
+):
     """
-    TODO Add pydoc annotation
+    Downloads a whole video from YouTube given its URL. Eventually is possible to
+    specify a resolution (default is 1080p) and enable download of captions as .srt file.
+    The downloaded file(s) will be saved in the "out" directory and named as the video,
+    in case of file conflict the destination will be overwritten
+
+    Args:
+        url (str): The youTube URL for the given video
+        out (PathLike): The relative or absolute destination folder
+        res (Resolution): The desired resolution of download
+        captions (bool): Flag to download captions as .srt files
     """
     if not isdir(abspath(out)):
         console.log(f"{abspath(out)} is not a directory")
         return
 
-    yt_video = Video(url)  # get a reference the the YouTube video object
+    yt_video = Video(url)  # Gets a reference the the YouTube video object
     # Filters out the desired stream chosen by the user
-    stream, *_ = yt_video.streams.filter(res=res, file_extension='mp4')
+    stream, *_ = yt_video.streams.filter(res=res, file_extension="mp4")
     # And downloads it in the requested directory, eventually overwriting the previous
     stream.download(out, skip_existing=False)
 
@@ -73,6 +111,6 @@ if __name__ == "__main__":
         console.print_exception()
     finally:
         script_name = basename(__file__)
-        current_date = datetime.now().strftime('%d-%m-%Y %H:%M')
+        current_date = datetime.now().strftime("%d-%m-%Y %H:%M")
         console.save_html(f"logs/{script_name} {current_date}.html", clear=False)
         console.save_text(f"logs/{script_name} {current_date}.log", clear=False)
