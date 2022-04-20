@@ -19,6 +19,7 @@ A copy of abovesaid license can be found in the LICENSE file.
 """
 
 from datetime import datetime
+from genericpath import isdir
 from os import PathLike, system
 from os.path import abspath, basename, exists, join
 
@@ -44,10 +45,15 @@ def fetch_stars(path: PathLike, clone_new: bool = False) -> None:
     """
     # Extract the absolute path to the folder containing the repos
     folder_abspath = abspath(path)
+
     # Uses GitHub API to get a list of all my public repositories
     res = get("https://api.github.com/users/its-hmny/starred")
 
-    if res.status_code != 200:
+    if not exists(folder_abspath):
+        raise FileNotFoundError(f"{folder_abspath} does not exists")
+    elif not isdir(folder_abspath):
+        raise NotADirectoryError(f"{folder_abspath} is a file, not a directory")
+    elif res.status_code != 200:
         raise ConnectionError(f"Received {res.status_code} from GitHub API")
 
     for repo in res.json():
@@ -89,7 +95,11 @@ def fetch_repos(path: str, clone_new: bool = False, ignore_archived: bool = Fals
     # Uses GitHub API to get a list of all my public repositories
     res = get("https://api.github.com/search/repositories?q=user:its-hmny")
 
-    if res.status_code != 200:
+    if not exists(folder_abspath):
+        raise FileNotFoundError(f"{folder_abspath} does not exists")
+    elif not isdir(folder_abspath):
+        raise NotADirectoryError(f"{folder_abspath} is a file, not a directory")
+    elif res.status_code != 200:
         raise ConnectionError(f"Received {res.status_code} from GitHub API")
 
     for repo in res.json().get("items", []):
