@@ -3,28 +3,36 @@ from datetime import datetime
 from io import BytesIO
 from os import PathLike
 from os.path import abspath, basename, exists, isfile
+from posixpath import splitext
 
 from fire import Fire
 from gtts import gTTS
 from rich.console import Console
+from textract import process as extract_text
 
 # Rich console instance for pretty printing on the terminal
 console = Console(record=True)
 
 
+class FileTypeError(Exception):
+    """ TODO add pydoc annotations """
+
+
 def pdf_to_speech(pdf_path: PathLike) -> gTTS:
     """ TODO Add comments """
+    # Retrieves the absolute file and file extension for argument checking
     pdf_abspath = abspath(pdf_path)
+    _, file_ext = splitext(pdf_abspath)
 
     if not exists(pdf_abspath) or not isfile(pdf_abspath):
         raise FileNotFoundError(f"The given path {pdf_path} is wrong or not a file")
+    elif file_ext != ".pdf":
+        raise FileTypeError("The given file is not a PDF")
 
-    # TODO Read the PDF content as string
-
-    # Passing the text and language to the engine,  here we have marked slow=False.
-    # Which tells the module that the converted audio should have a high speed
-    audio = gTTS(text="Hey you! Yeah you!! Fuck off mate!", lang="en", slow=False)
-    # Saving the converted audio in a mp3 file named welcome
+    # Extracts the text content from the pdf file
+    text_content = str(extract_text(pdf_abspath))
+    # Converts the text to audio stream with Google's Text to Speech API
+    audio = gTTS(text=text_content, lang="en", slow=False)
     return audio
 
 
@@ -32,6 +40,7 @@ def export(pdf_path: PathLike, mp3_path: PathLike = "./out.mp3") -> None:
     """ TODO Add pydoc annotation """
     # Converts the PDF content to audio/speech and writes it to the output file
     audio = pdf_to_speech(pdf_path)
+    # Saving the converted audio in a mp3 file
     audio.save(abspath(mp3_path))
 
     console.print(f"[bold green]'{mp3_path}' exported successfully![/bold green]")
