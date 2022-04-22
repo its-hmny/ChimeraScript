@@ -1,9 +1,10 @@
 """ TODO Add pydoc annotation """
 from datetime import datetime
 from io import BytesIO
-from os import PathLike
-from os.path import abspath, basename, exists, isfile
-from posixpath import splitext
+from os import PathLike, system
+from os.path import abspath, basename, exists, isfile, join, splitext
+from shutil import which
+from tempfile import NamedTemporaryFile
 
 from fire import Fire
 from gtts import gTTS, gTTSError
@@ -15,6 +16,10 @@ console = Console(record=True)
 
 
 class FileTypeError(Exception):
+    """ TODO add pydoc annotations """
+
+
+class MissingPlayerError(Exception):
     """ TODO add pydoc annotations """
 
 
@@ -39,25 +44,32 @@ def pdf_to_speech(pdf_path: PathLike) -> gTTS:
 def export(pdf_path: PathLike, mp3_path: PathLike = "./out.mp3") -> None:
     """ TODO Add pydoc annotation """
     try:
-    # Converts the PDF content to audio/speech and writes it to the output file
-    audio = pdf_to_speech(pdf_path)
-    # Saving the converted audio in a mp3 file
-    audio.save(abspath(mp3_path))
+        # Converts the PDF content to audio/speech and writes it to the output file
+        audio = pdf_to_speech(pdf_path)
+        # Saving the converted audio in a mp3 file
+        audio.save(abspath(mp3_path))
     except gTTSError:
         console.print("[yellow]Text to Speech conversion terminated by the server[/yellow]")
 
 
 def stream(pdf_path: PathLike) -> None:
     """ TODO Add pydoc annotation """
-    # Creates a memory buffer in which the audio data will be saved
-    mp3_buffer = BytesIO()
+    # Initialize a temp file in which the mp3 content will be written
+    tmp_file = NamedTemporaryFile("w", delete=True)
 
-    # Converts the PDF content to audio/speech and clones it onto the buffer
-    audio = pdf_to_speech(pdf_path)
-    audio.write_to_fp(mp3_buffer)
+    try:
+        # Writes the stream into the file as they come from gTTS
+        audio = pdf_to_speech(pdf_path)
+        audio.save(join("/tmp", tmp_file.name))
+    except gTTSError:
+        console.print("[yellow]Text to Speech conversion terminated by the server[/yellow]")
 
-    # Now that the buffer has been populated stream/reproduce it
-    console.print("[bold green]Starting reproduction just now[/bold green]")
+    if which("nvlc") is None:
+        raise MissingPlayerError("nvlc is not installed or available on your machine")
+
+    # Once completed, nvlc (the TUI version of VLC) is started, giving a user the audio
+    # reproduction as well as a minimal UI to play, pause, skip and so on...
+    system(f"nvlc {join('/tmp', tmp_file.name)}")
 
 
 if __name__ == "__main__":
