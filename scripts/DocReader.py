@@ -6,7 +6,7 @@ from os.path import abspath, basename, exists, isfile
 from posixpath import splitext
 
 from fire import Fire
-from gtts import gTTS
+from gtts import gTTS, gTTSError
 from rich.console import Console
 from textract import process as extract_text
 
@@ -30,7 +30,7 @@ def pdf_to_speech(pdf_path: PathLike) -> gTTS:
         raise FileTypeError("The given file is not a PDF")
 
     # Extracts the text content from the pdf file
-    text_content = str(extract_text(pdf_abspath))
+    text_content = str(extract_text(pdf_abspath), "utf8")
     # Converts the text to audio stream with Google's Text to Speech API
     audio = gTTS(text=text_content, lang="en", slow=False)
     return audio
@@ -38,12 +38,13 @@ def pdf_to_speech(pdf_path: PathLike) -> gTTS:
 
 def export(pdf_path: PathLike, mp3_path: PathLike = "./out.mp3") -> None:
     """ TODO Add pydoc annotation """
+    try:
     # Converts the PDF content to audio/speech and writes it to the output file
     audio = pdf_to_speech(pdf_path)
     # Saving the converted audio in a mp3 file
     audio.save(abspath(mp3_path))
-
-    console.print(f"[bold green]'{mp3_path}' exported successfully![/bold green]")
+    except gTTSError:
+        console.print("[yellow]Text to Speech conversion terminated by the server[/yellow]")
 
 
 def stream(pdf_path: PathLike) -> None:
