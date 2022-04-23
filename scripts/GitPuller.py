@@ -42,6 +42,7 @@ def fetch_stars(path: PathLike, clone_new: bool = False) -> None:
 
     Raises:
         ConnectionError: Error encountered during GitHub API call
+        NotADirectoryError: The given path doesn't point to a directory
     """
     # Extract the absolute path to the folder containing the repos
     folder_abspath = abspath(path)
@@ -49,10 +50,8 @@ def fetch_stars(path: PathLike, clone_new: bool = False) -> None:
     # Uses GitHub API to get a list of all my public repositories
     res = get("https://api.github.com/users/its-hmny/starred")
 
-    if not exists(folder_abspath):
-        raise FileNotFoundError(f"{folder_abspath} does not exists")
-    elif not isdir(folder_abspath):
-        raise NotADirectoryError(f"{folder_abspath} is a file, not a directory")
+    if not exists(folder_abspath) or not isdir(folder_abspath):
+        raise NotADirectoryError(f"{folder_abspath} is not a directory or does not exist")
     elif res.status_code != 200:
         raise ConnectionError(f"Received {res.status_code} from GitHub API")
 
@@ -88,6 +87,7 @@ def fetch_repos(path: str, clone_new: bool = False, ignore_archived: bool = Fals
         ignore_archived (bool): Optional flag to ignore archived repositories
 
     Raises:
+        NotADirectoryError: The given path doesn't point to a directory
         ConnectionError: Error encountered during GitHub API call
     """
     # Extract the absolute path to the folder containing the repos
@@ -95,10 +95,8 @@ def fetch_repos(path: str, clone_new: bool = False, ignore_archived: bool = Fals
     # Uses GitHub API to get a list of all my public repositories
     res = get("https://api.github.com/search/repositories?q=user:its-hmny")
 
-    if not exists(folder_abspath):
-        raise FileNotFoundError(f"{folder_abspath} does not exists")
-    elif not isdir(folder_abspath):
-        raise NotADirectoryError(f"{folder_abspath} is a file, not a directory")
+    if not exists(folder_abspath) or not isdir(folder_abspath):
+        raise NotADirectoryError(f"{folder_abspath} is not a directory or does not exist")
     elif res.status_code != 200:
         raise ConnectionError(f"Received {res.status_code} from GitHub API")
 

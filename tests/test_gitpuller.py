@@ -18,12 +18,12 @@ class TestGitPuller:
         wrong_stars_path = join("/tmp", str(random()))
 
         # Tests that "fetch_repos" blocks the execution instead of continuing
-        with raises(FileNotFoundError):
+        with raises(NotADirectoryError):
             fetch_repos(wrong_repo_path)
         assert exists(wrong_repo_path) is False, "(repo): Non existent out path has been created"
 
         # Tests that "fetch_stars" blocks the execution as well
-        with raises(FileNotFoundError):
+        with raises(NotADirectoryError):
             fetch_stars(wrong_stars_path)
         assert exists(wrong_stars_path) is False, "(stars): Non existent out path has been created"
 
