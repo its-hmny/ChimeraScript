@@ -52,7 +52,7 @@ def export(pdf_path: PathLike, mp3_path: PathLike = "./out.mp3") -> None:
         console.print("[yellow]Text to Speech conversion terminated by the server[/yellow]")
 
 
-def stream(pdf_path: PathLike) -> None:
+def stream(pdf_path: PathLike, player: str = "nvlc") -> None:
     """ TODO Add pydoc annotation """
     # Initialize a temp file in which the mp3 content will be written
     tmp_file = NamedTemporaryFile("w", delete=True)
@@ -64,12 +64,12 @@ def stream(pdf_path: PathLike) -> None:
     except gTTSError:
         console.print("[yellow]Text to Speech conversion terminated by the server[/yellow]")
 
-    if which("nvlc") is None:
-        raise MissingPlayerError("nvlc is not installed or available on your machine")
+    if which(player) is None:
+        raise MissingPlayerError(f"{player} is not installed or available on your machine")
 
     # Once completed, nvlc (the TUI version of VLC) is started, giving a user the audio
     # reproduction as well as a minimal UI to play, pause, skip and so on...
-    system(f"nvlc {join('/tmp', tmp_file.name)}")
+    system(f"{player} {join('/tmp', tmp_file.name)}")
 
 
 if __name__ == "__main__":
