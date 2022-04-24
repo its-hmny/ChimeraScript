@@ -22,9 +22,9 @@ A copy of abovesaid license can be found in the LICENSE file.
 from asyncio import gather, run
 from datetime import datetime
 from os import PathLike
-from os.path import abspath, basename
-from typing import List
+from os.path import abspath, basename, exists
 from tarfile import open as open_tar
+from typing import List
 
 from asyncssh import connect, scp
 from fire import Fire
@@ -46,8 +46,15 @@ async def scp_path(path: PathLike, host: str, user: str, psw: str):
         psw (str): The password for the abovesaid user
 
     Raises:
+        FileNotFoundError: The given path is wrong or invalid
+        ValueError : Hostname, username or password were not provided
         SFTPFailure: Error encountered during upload
     """
+    if not exists(abspath(path)):
+        raise FileNotFoundError(f"The given path doesn't exist {abspath(path)}")
+    elif host is None or user is None or psw is None:
+        raise ValueError("Missing one of the following arguments (host, user, password)")
+
     console.print(f"[bold yellow]Uploading {path}...[/bold yellow]")
 
     async with connect(host, username=user, password=psw) as conn:
