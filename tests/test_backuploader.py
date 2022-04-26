@@ -13,9 +13,9 @@ from scripts.BackUpLoader import scp_path
 @mark.asyncio
 class TestBackUpLoader:
     """Test suite for the BackUpLoader script"""
-    hostname = environ["POETRY_SSH_HOSTNAME"]
-    username = environ["POETRY_SSH_USERNAME"]
-    password = environ["POETRY_SSH_PASSWORD"]
+    hostname = environ["SSH_HOSTNAME"]
+    username = environ["SSH_USERNAME"]
+    password = environ["SSH_PASSWORD"]
 
     async def test_missing_path(self):
         """Gives a not existent path argument to scp_path"""
