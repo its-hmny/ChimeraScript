@@ -51,10 +51,12 @@ def download_playlist(
         out (PathLike): The relative or absolute destination folder
         res (Resolution): The desired resolution of download
         captions (bool): Flag to download captions as .srt files
+    
+    Raises:
+        NotADirectoryError: The given path doesn't exist or isn't a directory
     """
     if not isdir(abspath(out)):
-        console.log(f"{abspath(out)} is not a directory")
-        return
+        raise NotADirectoryError(f"{abspath(out)} is not a directory")
 
     yt_playlist = Playlist(url)  # Gets a reference to the playlist object
     # The out folder will be named as the playlist and be inside "out" path
@@ -83,10 +85,12 @@ def download_video(
         out (PathLike): The relative or absolute destination folder
         res (Resolution): The desired resolution of download
         captions (bool): Flag to download captions as .srt files
+    
+    Raises:
+        NotADirectoryError: The given path doesn't exist or isn't a directory
     """
     if not isdir(abspath(out)):
-        console.log(f"{abspath(out)} is not a directory")
-        return
+        raise NotADirectoryError(f"{abspath(out)} is not a directory")
 
     yt_video = Video(url)  # Gets a reference the the YouTube video object
     # Filters out the desired stream chosen by the user
