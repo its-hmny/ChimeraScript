@@ -2,9 +2,12 @@
 from os import getcwd, listdir
 from os.path import isfile, join
 from tempfile import NamedTemporaryFile as TmpFile
+from tempfile import TemporaryDirectory as TmpDir
 
-from genericpath import exists
+from genericpath import exists, isdir
 from pytest import raises
+from pytube import Playlist
+from pytube import YouTube as Video
 from pytube.exceptions import VideoUnavailable
 from scripts.YouTubeScraper import download_playlist, download_video
 
@@ -64,16 +67,78 @@ class TestYouTubeScrapers:
         # Checks that the file given hasn't been changed
         assert not exists(wrong_path), "Non existent path has been created"
 
-    def test_resolution_flag(self):
-        """
-        Checks that the desired resolution is downloaded when provided by the user,
-        both by download_video and download_playlist subcommands
-        """
-        assert False, "Test not implemented"
+    def test_correct_video_download(self):
+        """Gives correct arguments to download_video and expects correct output"""
+        # The "out" path and the YouTube video exist and are correct
+        tmp_dir, video_url = TmpDir(), "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+        # Tries to download the YT video
+        download_video(video_url, out=tmp_dir.name)
+
+        # Checks that the path hasn't been created by the script
+        expected_file_path = join(tmp_dir.name, Video(video_url).name)
+        assert exists(expected_file_path), "The expected output file doesn't exists"
+        assert isfile(expected_file_path), "The expected output file isn't a file"
+
+    def test_correct_playlist_download(self):
+        """Gives correct arguments to download_video and expects correct output"""
+        # The "out" path and the YouTube playlist exist and are correct
+        tmp_dir = TmpDir()
+        playlist_url = "https://www.youtube.com/watch?v=TazHNpt6OTo&list=PLEijU2q67K_twQnJ06-3DnrvsAdEii_MQ"
+
+        # Tries to download the YT playlist (all the videos present in it)
+        download_playlist(playlist_url, out=tmp_dir.name)
+
+        # Retrieves the playlist name and determines the path
+        yt_playlist = Playlist(playlist_url)
+        expected_out_dir = join(tmp_dir.name, yt_playlist.name)
+        # Checks that the script has created a sdirectory named as the playlist
+        assert exists(expected_out_dir), "Playlist directory hasn't been created"
+        assert isdir(expected_out_dir), "Playlist directory isn't a directory"
+
+        # Extracts the names of the videos in the playlist
+        yt_playlist_videos = [Video(v_url).name for v_url in yt_playlist.video_urls]
+        # Checks that the abovesaid directory contains a file for each video in the playlist
+        for video in yt_playlist_videos:
+            expected_out_file = join(expected_out_dir, video.name)
+            assert exists(expected_out_file), "The expected output file doesn't exists"
+            assert isfile(expected_out_file), "The expected output file isn't a file"
 
     def test_captions_flag(self):
         """
-        Checks that the captions are downloaded and saved, when the flag is provided by
-        the user, both by download_video and download_playlist subcommands
+        Checks that the captions are downloaded and saved, when the flag is provided by the user.
+        Since download_playlist internally uses download_video both method are (indirectly) tested.
+        """
+        # The "out" path and the YouTube playlist exist and are correct
+        tmp_dir = TmpDir()
+        playlist_url = "https://www.youtube.com/watch?v=TazHNpt6OTo&list=PLEijU2q67K_twQnJ06-3DnrvsAdEii_MQ"
+
+        # Tries to download the YT playlist (all the videos present in it)
+        download_playlist(playlist_url, out=tmp_dir.name)
+
+        # Retrieves the playlist name and determines the path
+        yt_playlist = Playlist(playlist_url)
+        expected_out_dir = join(tmp_dir.name, yt_playlist.name)
+        # Checks that the script has created a sdirectory named as the playlist
+        assert exists(expected_out_dir), "Playlist directory hasn't been created"
+        assert isdir(expected_out_dir), "Playlist directory isn't a directory"
+
+        # Extracts the names of the videos in the playlist
+        yt_playlist_videos = [Video(v_url).name for v_url in yt_playlist.video_urls]
+        # Checks that the directory contains both an mp4 & srt file for each video in the playlist
+        for video in yt_playlist_videos:
+            # Checks that mp4 video file exist
+            expected_video_path = join(expected_out_dir, f"{video.name}.mp4")
+            assert exists(expected_video_path), "The expected output file doesn't exists"
+            assert isfile(expected_video_path), "The expected output file isn't a file"
+            # Checks that the captions/subtitle have been cloned as well
+            expected_cc_path = join(expected_out_dir, f"{video.name}.srt")
+            assert exists(expected_cc_path), "The expected output file doesn't exists"
+            assert isfile(expected_cc_path), "The expected output file isn't a file"
+
+    def test_resolution_arg(self):
+        """
+        Checks that the desired resolution is downloaded when provided by the user.
+        Since download_playlist internally uses download_video both method are (indirectly) tested.
         """
         assert False, "Test not implemented"
