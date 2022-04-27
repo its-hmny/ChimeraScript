@@ -88,6 +88,7 @@ def download_video(
     
     Raises:
         NotADirectoryError: The given path doesn't exist or isn't a directory
+        VideoUnavailable: The given URL points to a non existent/unavailable video
     """
     if not isdir(abspath(out)):
         raise NotADirectoryError(f"{abspath(out)} is not a directory")
