@@ -12,7 +12,7 @@ rich = "^12.1.0"
 fire = "^0.4.0"
 requests = "^2.27.1"
 asyncssh = "^2.10.0"
-pytube = "^12.0.0"
+pytube = {git = "https://github.com/Haseeb1604/pytube"}
 
 [tool.poetry.dev-dependencies]
 yapf = "^0.32.0"
