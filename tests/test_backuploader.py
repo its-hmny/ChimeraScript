@@ -30,7 +30,7 @@ class TestBackUpLoader:
     async def test_missing_hostname(self):
         """Doesn't provide hostname, username and password to scp_path"""
         # Creates a temporary files to use as a mock
-        tmp_file = TmpFile("w", delete=True)
+        tmp_file = TmpFile(delete=True)
 
         # Tests that "scp_path" blocks the execution when hostname isn't provided
         with raises(ValueError):
@@ -45,7 +45,7 @@ class TestBackUpLoader:
     async def test_with_correct_path(self):
         """Tests scp_path with valid arguments"""
         # Creates a temporary files to use as a mock
-        tmp_file = TmpFile("w", delete=True)
+        tmp_file = TmpFile(delete=True)
 
         # Uploads the temporary file
         await scp_path(tmp_file.name, self.hostname, self.username, self.password)
@@ -60,7 +60,7 @@ class TestBackUpLoader:
         tmp_dir = TmpDir()  # Creates a temporary directory
         # Populates the directory with a random number of mock files and at the same time
         # initializes a list of all the file that will be uploaded to the remote
-        to_check_list = [TmpFile("w", dir=tmp_dir.name) for _ in range(randint(3, 30))]
+        to_check_list = [TmpFile(dir=tmp_dir.name) for _ in range(randint(3, 30))]
 
         # Uploads the temporary directory
         await scp_path(tmp_dir.name, self.hostname, self.username, self.password)
