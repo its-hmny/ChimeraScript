@@ -1,10 +1,8 @@
 """PyTest module with test suite implementation for the YouTubeScraper.py script"""
 from os import getcwd, listdir
-from os.path import isfile, join
+from os.path import exists, getmtime, isdir, isfile, join
 from tempfile import NamedTemporaryFile as TmpFile
 from tempfile import TemporaryDirectory as TmpDir
-
-from genericpath import exists, isdir
 
 from pytest import raises
 from pytube import Playlist
@@ -112,6 +110,48 @@ class TestYouTubeScrapers:
         for video_abspath in yt_video_downloaded:
             assert exists(video_abspath), "The expected output file doesn't exists"
             assert isfile(video_abspath), "The expected output file isn't a file"
+
+    def test_overwrite_video(self):
+        """Checks that already present files are overwritten when the 'overwrite' flag is provided"""
+        # Creates a temporary direcotry in which the test case will be executed
+        tmp_dir, video_url = TmpDir(), "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        expected_file_out = join(tmp_dir.name, f"{Video(video_url).title}.mp4")
+
+        # Downloads the video for the first time
+        download_video(video_url, out=tmp_dir.name, overwrite=False)
+        assert exists(expected_file_out), "Expected file path non existent"
+        assert isfile(expected_file_out), "Expected path not a file"
+        m_time = getmtime(expected_file_out)  # Retrieve the modification timestamp
+
+        # Tries to download again the video but this time should skip the download
+        download_video(video_url, out=tmp_dir.name, overwrite=True)
+        assert exists(expected_file_out), "Expected file path non existent"
+        assert isfile(expected_file_out), "Expected path not a file"
+        new_m_time = getmtime(expected_file_out)  # Get a new m_time measurement
+
+        # Since the file shouldn't have been touched the m_time should be the same
+        assert new_m_time != m_time, "File has been overwritten"
+
+    def test_not_overwrite_video(self):
+        """Checks that present files are not overwritten when the 'overwrite' flag is False"""
+        # Creates a temporary direcotry in which the test case will be executed
+        tmp_dir, video_url = TmpDir(), "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        expected_file_out = join(tmp_dir.name, f"{Video(video_url).title}.mp4")
+
+        # Downloads the video for the first time
+        download_video(video_url, out=tmp_dir.name, overwrite=False)
+        assert exists(expected_file_out), "Expected file path non existent"
+        assert isfile(expected_file_out), "Expected path not a file"
+        m_time = getmtime(expected_file_out)  # Retrieve the modification timestamp
+
+        # Tries to download again the video but this time should skip the download
+        download_video(video_url, out=tmp_dir.name, overwrite=False)
+        assert exists(expected_file_out), "Expected file path non existent"
+        assert isfile(expected_file_out), "Expected path not a file"
+        new_m_time = getmtime(expected_file_out)  # Get a new m_time measurement
+
+        # Since the file shouldn't have been touched the m_time should be the same
+        assert new_m_time == m_time, "File has been overwritten"
 
     def test_captions_flag(self):
         """
