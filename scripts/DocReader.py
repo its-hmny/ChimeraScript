@@ -18,6 +18,7 @@ This file are distributed under the General Public License v 3.0.
 A copy of abovesaid license can be found in the LICENSE file.
 """
 from datetime import datetime
+from genericpath import isdir
 from os import PathLike, getcwd, system
 from os.path import abspath, basename, exists, isfile, join, splitext
 from shutil import which
@@ -89,6 +90,11 @@ def export(pdf_path: PathLike, mp3_path: Optional[PathLike] = None) -> None:
     if mp3_path is None:
         filename, _ = splitext(basename(pdf_path))
         mp3_path = join(getcwd(), f"{filename}.mp3")
+
+    # If the given path is a directory the file will be put inside an named as the input
+    if isdir(mp3_path):
+        filename, _ = splitext(basename(pdf_path))
+        mp3_path = join(mp3_path, f"{filename}.mp3")
 
     try:
         # Converts the PDF content to audio/speech and writes it to the output file
