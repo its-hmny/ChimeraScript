@@ -1,5 +1,6 @@
 """PyTest module with test suite implementation for the GitPuller.py script"""
 from os.path import exists, isdir, isfile, join
+from posixpath import basename
 from random import random
 from tempfile import NamedTemporaryFile as TmpFile
 from tempfile import TemporaryDirectory as TmpDir
@@ -101,7 +102,8 @@ class TestDocReader:
         assert isdir(tmp_dir.name), "(export): The given directory isn't a directory anymore"
 
         # Test that the file with same name as the input but .mp3 format has been created
-        expected_out_path = join(tmp_dir.name, f"{tmp_pdf_file.name.replace('.pdf', '.mp3')}")
+        expected_file_name = basename(tmp_pdf_file.name).replace('.pdf', '.mp3')
+        expected_out_path = join(tmp_dir.name, expected_file_name)
         assert exists(expected_out_path), "(export): No output file found"
         assert isfile(expected_out_path), "(export): No output file isn't a file"
 
@@ -121,5 +123,8 @@ class TestDocReader:
         tmp_pdf_file = TmpFile("bw", suffix=".pdf")
         tmp_pdf_file.write(get("https://www.orimi.com/pdf-test.pdf").content)
 
-        # Test the export function with the mock pdf
-        stream(tmp_pdf_file.name, player="nvlc")
+        # Test the export function with the mock pdf, this tests as well flag forwarding
+        #  because if the flag isn't forwarded correctly the player will never close itself
+        # upon completion (the default behavior is to remain open) and in this case the
+        # suite will never complete
+        stream(tmp_pdf_file.name, player="nvlc", player_flags="--play-and-exit")
