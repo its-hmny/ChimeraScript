@@ -19,6 +19,7 @@ A copy of abovesaid license can be found in the LICENSE file.
 """
 from datetime import datetime
 from genericpath import isdir
+import inspect
 from os import PathLike, getcwd, system
 from os.path import abspath, basename, exists, isfile, join, splitext
 from shutil import which
@@ -105,7 +106,7 @@ def export(pdf_path: PathLike, mp3_path: Optional[PathLike] = None) -> None:
         console.print("[yellow]Text to Speech conversion terminated by the server[/yellow]")
 
 
-def stream(pdf_path: PathLike, player: str = "nvlc") -> None:
+def stream(pdf_path: PathLike, player: str = "nvlc", player_flags: str = "") -> None:
     """
     Converts the given pdf file to audio and then subsequently saves the incoming streams in
     a temporary file and once completed start reproducing it with the desired player.
@@ -113,6 +114,7 @@ def stream(pdf_path: PathLike, player: str = "nvlc") -> None:
     Args:
         pdf_path (Pathlike): The path to the pdf file to convert in audio
         player (str): The name of the program the user would like to play the audio
+        player_flags (str): A string list of flag to be forwarded to the chosen player
 
     Raises:
         MissingPlayerError: The desired player is not available or could not be found
@@ -132,7 +134,7 @@ def stream(pdf_path: PathLike, player: str = "nvlc") -> None:
 
     # Once completed, nvlc (the TUI version of VLC) is started, giving a user the audio
     # reproduction as well as a minimal UI to play, pause, skip and so on...
-    system(f"{player} {join('/tmp', tmp_file.name)}")
+    system(f"{player} {join('/tmp', tmp_file.name)} {player_flags}")
 
 
 if __name__ == "__main__":
