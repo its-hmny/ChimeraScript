@@ -11,12 +11,14 @@
   ],
 
   "cSpell.words": [
+    "asyncio",
     "asyncssh",
     "Enea",
     "Guidi",
     "hmny",
     "nvlc",
     "pylint",
+    "pytest",
     "pytube",
     "unibo",
     "yapf"
