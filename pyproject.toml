@@ -24,6 +24,8 @@ pytest-asyncio = "^0.18.3"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+console_output_style = "progress"
+python_files = ["unit_*.py"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
