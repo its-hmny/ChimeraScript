@@ -1,0 +1,35 @@
+name: CI testing
+
+# on:
+#   pull_request:
+#     branches: [ main ]
+#     paths-ignore:
+#       - '**/README.md'
+#       - 'docs/**'
+
+on: push
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+
+      - name: Upgrade pip
+        run: pip install --upgrade pip
+
+      - name: Install poetry
+        run: pip install --user poetry
+
+      - name: Install project dependencies
+        run: poetry install
+
+      - name: Run Pytest
+        run: poetry run pytest
