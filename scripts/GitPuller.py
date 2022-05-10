@@ -19,11 +19,11 @@ A copy of abovesaid license can be found in the LICENSE file.
 """
 
 from datetime import datetime
-from genericpath import isdir
 from os import PathLike, system
 from os.path import abspath, basename, exists, join
 
 from fire import Fire
+from genericpath import isdir
 from requests import get
 from rich.console import Console
 

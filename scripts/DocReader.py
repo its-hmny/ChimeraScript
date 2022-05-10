@@ -18,8 +18,6 @@ This file are distributed under the General Public License v 3.0.
 A copy of abovesaid license can be found in the LICENSE file.
 """
 from datetime import datetime
-from genericpath import isdir
-import inspect
 from os import PathLike, getcwd, system
 from os.path import abspath, basename, exists, isfile, join, splitext
 from shutil import which
@@ -27,6 +25,7 @@ from tempfile import NamedTemporaryFile
 from typing import Optional
 
 from fire import Fire
+from genericpath import isdir
 from gtts import gTTS, gTTSError
 from rich.console import Console
 from textract import process as extract_text
