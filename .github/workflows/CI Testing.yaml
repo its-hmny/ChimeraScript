@@ -1,5 +1,6 @@
 name: CI testing
 
+# ! Will be added later, before being pushed to main branch
 # on:
 #   pull_request:
 #     branches: [ main ]
@@ -7,6 +8,7 @@ name: CI testing
 #       - '**/README.md'
 #       - 'docs/**'
 
+# ! Only for debugging purposes
 on: push
 
 jobs:
@@ -31,5 +33,11 @@ jobs:
       - name: Install project dependencies
         run: poetry install
 
+      # TODO add some environment variables to test BackUpLoader script
+
       - name: Run Pytest
+        env:
+          SSH_HOSTNAME: ${{ secrets.SSH_REMOTE_HOSTNAME }}
+          SSH_USERNAME: ${{ secrets.SSH_REMOTE_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_REMOTE_PASSWORD }}
         run: poetry run pytest
