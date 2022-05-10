@@ -5,7 +5,9 @@
 <p align="center">
     <img alt="GPLv3 License" src="https://img.shields.io/badge/License-GPL%20v3-yellow.svg">
     <img alt="Code Size" src="https://img.shields.io/github/languages/code-size/its-hmny/ChimeraScript?color=green&label=Code%20Size">
+    <img alt="CI Testing" src="https://github.com/its-hmny/ChimeraScript/actions/workflows/CI%20Testing.yaml/badge.svg">
     <img alt="Release" src="https://img.shields.io/github/v/release/its-hmny/ChimeraScript?label=Version">
+
 </p>
 
 # ChimeraScript

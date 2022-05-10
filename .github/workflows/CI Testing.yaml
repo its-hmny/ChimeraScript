@@ -1,0 +1,45 @@
+name: CI testing
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+
+      - name: Upgrade pip
+        run: pip install --upgrade pip
+
+      # ChimeraScript uses poetry as package manager
+      - name: Install poetry
+        run: pip install --user poetry
+
+      - name: Install project dependencies
+        run: poetry install
+
+      # Install poppler-utils adn vlc packages respectively used by "textract"
+      # to read from a PDF file and vlc to test the stream subcommand
+      - name: Install apt dependencies
+        run: sudo apt install -y poppler-utils vlc
+
+      # Adds the SSH_REMOTE_HOST ssh fingerprint to the known_host
+      - name: Add remote host to known_hosts
+        run: mkdir ~/.ssh && ssh-keyscan -H ${{ secrets. SSH_REMOTE_HOSTNAME }} >> ~/.ssh/known_hosts
+
+      - name: Run Pytest
+        # Setup environment variables from GitHub Secrets
+        env:
+          SSH_HOSTNAME: ${{ secrets.SSH_REMOTE_HOSTNAME }}
+          SSH_USERNAME: ${{ secrets.SSH_REMOTE_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_REMOTE_PASSWORD }}
+        run: poetry run pytest
