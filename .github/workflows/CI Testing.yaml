@@ -33,9 +33,17 @@ jobs:
       - name: Install project dependencies
         run: poetry install
 
-      # TODO add some environment variables to test BackUpLoader script
+      # Install poppler-utils adn vlc packages respectively used by "textract"
+      # to read from a PDF file and vlc to test the stream subcommand
+      - name: Add apt-get dependencies
+        run: sudo apt install -y poppler-utils vlc
+
+      # Adds the SSH_REMOTE_HOST ssh fingerprint to the known_host
+      - name: Add remote host to known_hosts
+        run: mkdir ~/.ssh && ssh-keyscan -H ${{ secrets. SSH_REMOTE_HOSTNAME }} >> ~/.ssh/known_hosts
 
       - name: Run Pytest
+        # Setup environment variables from GitHub Secrets
         env:
           SSH_HOSTNAME: ${{ secrets.SSH_REMOTE_HOSTNAME }}
           SSH_USERNAME: ${{ secrets.SSH_REMOTE_USERNAME }}
