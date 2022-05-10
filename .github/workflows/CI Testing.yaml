@@ -1,15 +1,8 @@
 name: CI testing
 
-# ! Will be added later, before being pushed to main branch
-# on:
-#   pull_request:
-#     branches: [ main ]
-#     paths-ignore:
-#       - '**/README.md'
-#       - 'docs/**'
-
-# ! Only for debugging purposes
-on: push
+on:
+  pull_request:
+    branches: [main]
 
 jobs:
   ci:
@@ -27,6 +20,7 @@ jobs:
       - name: Upgrade pip
         run: pip install --upgrade pip
 
+      # ChimeraScript uses poetry as package manager
       - name: Install poetry
         run: pip install --user poetry
 
@@ -35,7 +29,7 @@ jobs:
 
       # Install poppler-utils adn vlc packages respectively used by "textract"
       # to read from a PDF file and vlc to test the stream subcommand
-      - name: Add apt-get dependencies
+      - name: Install apt dependencies
         run: sudo apt install -y poppler-utils vlc
 
       # Adds the SSH_REMOTE_HOST ssh fingerprint to the known_host
