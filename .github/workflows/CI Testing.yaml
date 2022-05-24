@@ -42,4 +42,4 @@ jobs:
           SSH_HOSTNAME: ${{ secrets.SSH_REMOTE_HOSTNAME }}
           SSH_USERNAME: ${{ secrets.SSH_REMOTE_USERNAME }}
           SSH_PASSWORD: ${{ secrets.SSH_REMOTE_PASSWORD }}
-        run: poetry run pytest
+        run: poetry run pytest --cov scripts
