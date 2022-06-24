@@ -34,7 +34,7 @@ jobs:
 
       # Adds the SSH_REMOTE_HOST ssh fingerprint to the known_host
       - name: Add remote host to known_hosts
-        run: mkdir ~/.ssh && ssh-keyscan -H ${{ secrets. SSH_REMOTE_HOSTNAME }} >> ~/.ssh/known_hosts
+        run: mkdir ~/.ssh && ssh-keyscan -H ${{ secrets.SSH_REMOTE_HOSTNAME }} >> ~/.ssh/known_hosts
 
       - name: Run Pytest
         # Setup environment variables from GitHub Secrets
