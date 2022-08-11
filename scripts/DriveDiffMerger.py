@@ -19,7 +19,7 @@ This file are distributed under the General Public License v 3.0.
 A copy of abovesaid license can be found in the LICENSE file.
 """
 from datetime import datetime
-from os import PathLike, listdir, makedirs, mkdir, utime
+from os import PathLike, listdir, mkdir, utime
 from os.path import abspath, basename, exists, getmtime, isdir, isfile, join
 
 from fire import Fire
@@ -46,6 +46,11 @@ console = Console(record=True)
 gdrive = GoogleDrive(GoogleAuth())
 
 
+def gd_exists(entry: GoogleDriveFile) -> bool:
+    """TODO: Add pydoc annotations"""
+    return entry.uploaded == True
+
+
 def gd_isdir(entry: GoogleDriveFile) -> bool:
     """Determines if the 'entry' argument is a Google Drive directory/folder"""
     return entry["mimeType"] == GD_FOLDER_MIMETYPE
@@ -64,6 +69,18 @@ def gd_isfile(entry: GoogleDriveFile) -> bool:
     return is_document and is_not_gapp
 
 
+def gd_join(parent: GoogleDriveFile, name: str) -> bool:
+    """TODO: Add pydoc annotations"""
+    query = {"q": f"'{parent['id']}' in parents and title='{name}' and trashed=false"}
+    match_list = gdrive.ListFile(query).GetList()
+
+    if len(match_list) != 0:
+        return match_list.pop()
+    else:
+        query = {'title': name, 'parents': [{"id": parent["id"], "kind": "drive#fileLink"}]}
+        return gdrive.CreateFile(query)
+
+
 def gd_listdir(gd_dir: GoogleDriveFile) -> list[GoogleDriveFile]:
     """Returns the list of all the items in the current 'gd_dir' direcctory"""
     if not gd_isdir(gd_dir):
@@ -73,62 +90,91 @@ def gd_listdir(gd_dir: GoogleDriveFile) -> list[GoogleDriveFile]:
     return gdrive.ListFile(query).GetList()
 
 
+def gd_mkdir(gd_dir: GoogleDriveFile) -> list[GoogleDriveFile]:
+    """TODO: Add pydoc annotations"""
+    gd_dir["mimeType"] = GD_FOLDER_MIMETYPE
+    gd_dir.Upload()
+
+
 def gd_getmtime(entry: GoogleDriveFile) -> int:
     """Returns the last time (in UNIX timestamp format) the file was modified"""
     return datetime.strptime(entry["modifiedDate"], ISO_FORMAT).timestamp()
 
 
 def gd_download(entry: GoogleDriveFile, dest: PathLike) -> None:
-    """Downloads the content of the provided Google Drive 'entry' to the local 'dest' path"""
-    todos = gd_listdir(entry) if gd_isdir(entry) else [entry]
-
-    for todo in todos:
-        if gd_isdir(todo):
-            makedirs(dest) if not exists(dest) else None
-            gd_download(todo, join(dest, todo["title"]))
-        elif gd_isfile(todo):
-            todo.GetContentFile(dest)
-            utime(dest, (gd_getmtime(todo), gd_getmtime(todo)))
+    """Downloads the content of the provided Google Drive file 'entry' to the local 'dest' path"""
+    if not gd_isfile(entry):
+        raise FileNotFoundError(f"{entry['title']} is not a Google Drive file")
+    # Downloads the file at the provided destination path (full path with filename as well)
+    entry.GetContentFile(dest)
+    # Changes the file atime & mtime to reflect the one of the remote entry
+    utime(dest, (gd_getmtime(entry), gd_getmtime(entry)))
 
 
-def pull_recursively(local: PathLike, remote: GoogleDriveFile) -> None:
+def gd_upload(entry: PathLike, dest: GoogleDriveFile) -> None:
     """TODO: Add pydoc annotations"""
-    for r_entry in gd_listdir(remote):
-        # Based on the remote entry extracts the expected local one
-        l_entry = abspath(join(local, r_entry["title"]))
+    if not isfile(entry):
+        raise FileNotFoundError(f"{entry['title']} is not a local file")
+    dest.SetContentFile(entry)
+    dest.Upload()
 
-        # If the local entry (file or dir) doesn't exist, we pull it straight from Google Drive
-        if not exists(l_entry):
-            console.print(f"[yellow]Downloading {r_entry['title']} in {l_entry}[/yellow]")
-            gd_download(r_entry, l_entry)
+
+def pull(l_prnt: PathLike, r_parent: GoogleDriveFile = gdrive.CreateFile({"id": "root"})) -> None:
+    """TODO: Add pydoc annotations"""
+    # Gets a list of remote children from the given parent
+    remote_childrens = {r_entry["title"]: r_entry for r_entry in gd_listdir(r_parent)}
+
+    for entry_name, r_child in remote_childrens.items():
+        l_child = join(l_prnt, entry_name)  # Interpolates the local counterpart path
+
+        # If the 'r_child' is a direcotry then is recursively pulled
+        if gd_isdir(r_child):
+            mkdir(l_child) if not exists(l_child) else None
+            pull(l_child, r_child)
+
+        # Skips the current iteration if 'r_child' isn't a file
+        if not gd_isfile(r_child):
             continue
 
-        # If the remote directory is older we pull that recursively
-        if gd_isdir(r_entry):
-            console.print("Recursion on", r_entry["title"], l_entry)
-            pull_recursively(l_entry, r_entry)
-        # If the remote file is older then we pull and overwrite the current one
-        elif gd_isfile(r_entry) and gd_getmtime(r_entry) > getmtime(l_entry):
-            gd_download(r_entry, l_entry)
-            console.print(f"[yellow]Updating {r_entry['title']} in {l_entry}[/yellow]")
+        # If the 'r_child' is newer or the local one doesn't exist then we pull from Drive
+        if not exists(l_child) or gd_getmtime(r_child) > getmtime(l_child):
+            console.print(f"[green]Pulling {l_child} from Google Drive[green]")
+            gd_download(r_child, l_child)
 
 
-def main(local_root: PathLike) -> None:
+def push(l_prnt: PathLike, r_parent: GoogleDriveFile = gdrive.CreateFile({"id": "root"})) -> None:
     """TODO: Add pydoc annotations"""
-    for remote_folder in gd_listdir(gdrive.CreateFile({"id": "root"})):
-        # From the root path creates the expected local counterpart
-        local_folder = abspath(join(local_root, remote_folder["title"]))
-        # Creates the local folder if it doesn't exist
-        mkdir(local_folder) if not exists(local_folder) else None
-        # ! Debug only, will be removed later
-        console.log(f"[green]Pulling from Drive {remote_folder['title']} in {local_folder}[/green]")
-        # Synchronizes both from remote to local and viceversa at the same time
-        pull_recursively(local_folder, remote_folder)
+    # Gets a list of local children from the given parent
+    local_childrens = {basename(l_entry): join(l_prnt, l_entry) for l_entry in listdir(l_prnt)}
+
+    for entry_name, l_child in local_childrens.items():
+        # Interpolates the local counterpart path
+        r_child = gd_join(r_parent, entry_name)
+
+        # If the 'l_child' is a direcotry then is recursively pushed
+        if isdir(l_child):
+            gd_mkdir(r_child) if not gd_exists(r_child) else None
+            push(l_child, r_child)
+
+        # Skips the current iteration if 'l_child' isn't a file
+        if not isfile(l_child):
+            continue
+
+        # If the 'r_child' is newer or the local one doesn't exist then we pull from Drive
+        if not gd_exists(r_child) or getmtime(l_child) > gd_getmtime(r_child):
+            console.print(f"[green]Pushing {l_child} to Google Drive[green]")
+            gd_upload(l_child, r_child)
+
+
+def sync(root: PathLike) -> None:
+    """TODO: Add pydoc annotations"""
+    pull(abspath(root), gdrive.CreateFile({"id": "root"}))
+    push(abspath(root), gdrive.CreateFile({"id": "root"}))
 
 
 if __name__ == "__main__":
     try:
-        Fire(main)
+        Fire({"sync": sync, "pull": pull, "push": push})
     except KeyboardInterrupt:
         console.print("[yellow]Interrupt received, closing now...[/yellow]")
     except Exception:
