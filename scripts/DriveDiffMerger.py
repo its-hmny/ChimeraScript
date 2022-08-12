@@ -222,11 +222,9 @@ def pull(l_root: PathLike, r_root: GoogleDriveFile = gdrive.CreateFile({"id": "r
         if not gd_isfile(r_child):
             continue
 
-        console.log(basename(l_child), exists(l_child))
-
         # If the 'r_child' is newer or the local one doesn't exist then we pull from Drive
         if not (exists(l_child)) or gd_getmtime(r_child) > getmtime(l_child):
-            console.print(f"[green]Pulling {l_child} from Google Drive[green]")
+            console.log(f"Pulling {l_child} from Google Drive")
             gd_download(r_child, l_child)
 
 
@@ -257,7 +255,7 @@ def push(l_root: PathLike, r_root: GoogleDriveFile = gdrive.CreateFile({"id": "r
 
         # If the 'r_child' is newer or the local one doesn't exist then we pull from Drive
         if not (gd_exists(r_child)) or getmtime(l_child) > gd_getmtime(r_child):
-            console.print(f"[green]Pushing {l_child} to Google Drive[green]")
+            console.log(f"Pushing {l_child} to Google Drive")
             # ! gd_upload(l_child, r_child)
 
 
