@@ -93,7 +93,7 @@ def gd_isfile(entry: GoogleDriveFile) -> bool:
     return is_document and is_not_gapp
 
 
-def gd_getmtime(entry: GoogleDriveFile) -> int:
+def gd_getmtime(entry: GoogleDriveFile) -> float:
     """
     Returns the last time (in UNIX timestamp format) the file was modified
 
@@ -103,7 +103,7 @@ def gd_getmtime(entry: GoogleDriveFile) -> int:
     return datetime.strptime(entry["modifiedDate"], ISO_FORMAT).timestamp()
 
 
-def gd_join(parent: GoogleDriveFile, name: str) -> bool:
+def gd_join(parent: GoogleDriveFile, name: str) -> GoogleDriveFile:
     """
     Returns the GoogleDriveEntity with the provided parent as well as
     the provided name/title. If no matching candidate is found then a new
@@ -149,7 +149,7 @@ def gd_listdir(gd_dir: GoogleDriveFile) -> list[GoogleDriveFile]:
     return gdrive.ListFile(query).GetList()
 
 
-def gd_mkdir(gd_dir: GoogleDriveFile) -> list[GoogleDriveFile]:
+def gd_mkdir(gd_dir: GoogleDriveFile) -> None:
     """
     Given a partial or complete GoogleDriveFile 'gd_dir' overwrites itsmimetype
     to act as a folder, then uplaods the changes to make them permanent.
@@ -193,8 +193,11 @@ def gd_upload(entry: PathLike, dest: GoogleDriveFile) -> None:
     """
     if not isfile(entry):
         raise FileNotFoundError(f"{entry['title']} is not a local file")
-    # Uploads and overwrites the 'dest' content, then saves the changes permanently
+    # Uploads and overwrites the 'dest' content
     dest.SetContentFile(entry)
+    # Updates also the mtime of the remote resource to match the local one
+    dest["modifiedDate"] = datetime.fromtimestamp(getmtime(entry)).strftime(ISO_FORMAT)
+    # Saves the changes permanently
     dest.Upload()
 
 
