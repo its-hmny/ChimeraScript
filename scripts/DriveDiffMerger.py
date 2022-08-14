@@ -201,7 +201,7 @@ def gd_upload(entry: PathLike, dest: GoogleDriveFile) -> None:
     dest.Upload()
 
 
-def pull(l_root: PathLike, r_root: GoogleDriveFile = gdrive.CreateFile({"id": "root"})) -> None:
+def pull_from_drive(l_root: PathLike, r_root: GoogleDriveFile) -> None:
     """
     Pulls all the new or changed files remotely to the local filesystem counterpart location.
     A file is determined to be newer based on its last_modified timestamp, the bigger the newer.
@@ -218,8 +218,8 @@ def pull(l_root: PathLike, r_root: GoogleDriveFile = gdrive.CreateFile({"id": "r
 
         # If the 'r_child' is a direcotry then is recursively pulled
         if gd_isdir(r_child):
-            mkdir(l_child) if not exists(l_child) else None
-            pull(l_child, r_child)
+            mkdir(l_child) if not exists(l_child) else None  # pylint: disable=expression-not-assigned
+            pull_from_drive(l_child, r_child)
 
         # Skips the current iteration if 'r_child' isn't a file
         if not gd_isfile(r_child):
@@ -231,7 +231,7 @@ def pull(l_root: PathLike, r_root: GoogleDriveFile = gdrive.CreateFile({"id": "r
             gd_download(r_child, l_child)
 
 
-def push(l_root: PathLike, r_root: GoogleDriveFile = gdrive.CreateFile({"id": "root"})) -> None:
+def push_to_drive(l_root: PathLike, r_root: GoogleDriveFile) -> None:
     """
     Push all the new or changed files locally to the remote Goole Drive counterpart location.
     A file is determined to be newer based on its last_modified timestamp, the bigger the newer.
@@ -249,8 +249,8 @@ def push(l_root: PathLike, r_root: GoogleDriveFile = gdrive.CreateFile({"id": "r
 
         # If the 'l_child' is a direcotry then is recursively pushed
         if isdir(l_child):
-            gd_mkdir(r_child) if not gd_exists(r_child) else None
-            push(l_child, r_child)
+            gd_mkdir(r_child) if not gd_exists(r_child) else None  # pylint: disable=expression-not-assigned
+            push_to_drive(l_child, r_child)
 
         # Skips the current iteration if 'l_child' isn't a file
         if not isfile(l_child):
@@ -259,24 +259,40 @@ def push(l_root: PathLike, r_root: GoogleDriveFile = gdrive.CreateFile({"id": "r
         # If the 'r_child' is newer or the local one doesn't exist then we pull from Drive
         if not (gd_exists(r_child)) or getmtime(l_child) > gd_getmtime(r_child):
             console.log(f"Pushing {l_child} to Google Drive")
-            # ! gd_upload(l_child, r_child)
+            gd_upload(l_child, r_child)
 
 
-def sync(l_root: PathLike, r_root: GoogleDriveFile = gdrive.CreateFile({"id": "root"})) -> None:
+def main(*paths: list[PathLike], pull: bool = True, push: bool = False) -> None:
     """
-    At first, pulls the changes from remote to local, then push the changes from local to remote.
+    Script entrypoint and dipsatcher, handles input validation and dispatch to both
+    'pull_from_drive' and 'push_to_drive' functions.
 
     Args:
-        l_root (PathLike): The local root dir from which start pulling
-        r_root (GoogleDriveFile): The remote root from whic start pulling
+        paths (list[PathLike]): The list of local path to push and/or pull
+        pull (bool): Enables the pull of new files/changes from Google Drive
+        push (bool): Enables the push of new files/changes to Google Drive
     """
-    pull(abspath(l_root), r_root)
-    push(abspath(l_root), r_root)
+    # Gets a reference to the root of the Google Drive filesystem
+    drive_root = gdrive.CreateFile({"id": "root"})
+
+    for argpath in paths:
+        if not exists(argpath):
+            raise FileNotFoundError(f"{argpath} doesn't exists")
+
+        console.print(f"[yellow]Synchronization of {argpath} to Google Drive[yellow]")
+
+        # Generates interface compliant argument for both recursive pull and push functions
+        local_entry, remote_entry = abspath(argpath), gd_join(drive_root, basename(argpath))
+
+        # Pulls from Drive if the user has provided the flag
+        pull_from_drive(local_entry, remote_entry) if pull else None  # pylint: disable=expression-not-assigned
+        # Push to Drive if the user has provided the flag
+        push_to_drive(local_entry, remote_entry) if push else None  # pylint: disable=expression-not-assigned
 
 
 if __name__ == "__main__":
     try:
-        Fire({"sync": sync, "pull": pull, "push": push})
+        Fire(main)
     except KeyboardInterrupt:
         console.print("[yellow]Interrupt received, closing now...[/yellow]")
     except Exception:
