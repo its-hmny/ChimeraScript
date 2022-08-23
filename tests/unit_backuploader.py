@@ -6,8 +6,29 @@ from tempfile import NamedTemporaryFile as TmpFile
 from tempfile import TemporaryDirectory as TmpDir
 
 from asyncssh import connect
-from pytest import mark, raises
+from pytest import fixture, mark, raises
 from scripts.BackUpLoader import scp_path
+
+
+@fixture(autouse=True)
+async def setup_remote_test_dir():
+    """
+    Initializes the base test directory for other test cases on the remote location
+    NOTE: This is only executed once before each test cases (kinda like a middleware)
+    """
+    hostname = environ["SSH_HOSTNAME"]
+    username = environ["SSH_USERNAME"]
+    password = environ["SSH_PASSWORD"]
+
+    # Opens a connection to the remote server
+    async with connect(hostname, username=username, password=password) as ssh:
+        # If the root test directory already exists then skips the remaining steps
+        if (await ssh.run("test -d /public/hmny/")).exit_status == 0:
+            return
+
+        # Check that the directory is present in the remote location
+        cmd = await ssh.run("mkdir /public/hmny/")
+        assert cmd.exit_status is 0, "Could not create test root folder on remote server"
 
 
 @mark.asyncio
