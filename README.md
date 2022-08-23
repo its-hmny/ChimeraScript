@@ -33,8 +33,12 @@ To install and run a script with pip, simply type in your terminal
 To install the dependencies and run the scripts with poetry, use:
 
 ```bash
-  poetry install
-  poetry run python3 scripts/GitPuller.py ...
+  poetry install # Installs dependency with poetry package manager
+
+  poetry run python3 scripts/GitPuller.py ... # Basic script execution
+
+  chmod +x scripts/*.py # Alternatively, you can set the scripts as executables
+  poetry run scripts/GitPuller.py # Then simply do...
 ```
 
 <!--
