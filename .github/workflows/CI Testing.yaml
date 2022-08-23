@@ -1,11 +1,11 @@
 name: CI testing
 
 on:
-  pull_request:
+  push:
     branches: [main]
 
 jobs:
-  ci:
+  CI:
     runs-on: ubuntu-latest
 
     steps:
