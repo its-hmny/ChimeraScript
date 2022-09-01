@@ -228,7 +228,7 @@ def pull_from_drive(l_root: PathLike, r_root: GoogleDriveFile) -> None:
 
         # If the 'r_child' is newer or the local one doesn't exist then we pull from Drive
         if not (exists(l_child)) or gd_getmtime(r_child) > getmtime(l_child):
-            console.log(f"Pulling {l_child} from Google Drive")
+            console.log(f"Pulling '{l_child}' from Google Drive")
             gd_download(r_child, l_child)
 
 
@@ -259,7 +259,7 @@ def push_to_drive(l_root: PathLike, r_root: GoogleDriveFile) -> None:
 
         # If the 'r_child' is newer or the local one doesn't exist then we pull from Drive
         if not (gd_exists(r_child)) or getmtime(l_child) > gd_getmtime(r_child):
-            console.log(f"Pushing {l_child} to Google Drive")
+            console.log(f"Pushing '{l_child}' to Google Drive")
             gd_upload(l_child, r_child)
 
 

@@ -56,12 +56,10 @@ async def scp_path(path: PathLike, host: str, user: str, psw: str):
     elif host is None or user is None or psw is None:
         raise ValueError("Missing one of the following arguments (host, user, password)")
 
-    console.print(f"[bold yellow]Uploading {path}...[/bold yellow]")
-
     async with connect(host, username=user, password=psw) as conn:
         await scp(path, (conn, f"/public/hmny/{basename(path)}"), preserve=True, recurse=True)
 
-    console.print(f"[bold green]Completed upload of {path}[/bold green]")
+    console.log(f"Completed upload of '{path}'")
 
 
 def compress_paths(*args: List[PathLike], host: str = None, username: str = None):
