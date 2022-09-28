@@ -121,7 +121,7 @@ platformdirs==2.5.2; python_version >= "3.7" and python_full_version >= "3.7.2" 
 pluggy==1.0.0; python_version >= "3.7" \
     --hash=sha256:74134bbf457f031a36d68416e1509f34bd5ccc019f0bcc952c7b909d06b37bd3 \
     --hash=sha256:4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159
-protobuf==4.21.5; python_version >= "3.7"
+protobuf==4.21.6; python_version >= "3.7"
 py==1.11.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.7" \
     --hash=sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378 \
     --hash=sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719
