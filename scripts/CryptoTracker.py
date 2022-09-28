@@ -2,11 +2,17 @@
 """
 ChimeraScript - CryptoTracker.py
 
-This script allows to ... TODO: Add documentation
+This script allows, based on a given crypto purchase history, to determine the
+current position for each and every purchase. When a purchase has generated a
+sufficently high profit the user might chose to sell its position.
+The script could be also used to track the positions during the day, week, etc.
 
-Example: TODO: add example usages
-    To only pull from Google Drive, use::
-        $ python3 DriveDiffMerger.py sync ~/GoogleDrive
+Example:
+    To get the current exchange rates just one time, use::
+        $ python3 CryptoTracker.py {purchase_hist} --recurrent=false
+
+    To get the current exchange rates and refresh them every x seconds, use::
+        $ python3 CryptoTracker.py {purchase_hist} --recurrent --refresh_interval={x}
 
 
 Copyright 2022 Enea Guidi (hmny). All rights reserved.
@@ -24,28 +30,52 @@ from typing import Tuple
 from fire import Fire
 from requests import get
 from rich.console import Console
+from rich.table import Table
 
 # API endpoint to retrieve exchange rates for a given crypto token
-COINBAE_EXCHANGE_API = "https://api.coinbase.com/v2/exchange-rates"
-REPORT_MSG = \
-    "Current profit for '{0} {1}' is {2:.2f} ({3:.2f}%)"
+COINBASE_EXCHANGE_API = "https://api.coinbase.com/v2/exchange-rates"
 # Rich console instance for pretty printing on the terminal
 console = Console(record=True)
 
 
 @dataclass(frozen=True, slots=True)
 class Purchase():
-    """TODO: add pydoc annotatios"""
+    """
+    Represents the needed informations about a crypto tokens purchase in order
+    to determine the current position (margin or loss) as well as profit/loss
+    value and percentage
+    """
     amount: float
     crypto_token: str
     fiat_currency: str
     purchase_price: int
 
 
+def init_table() -> Table:
+    """
+    Initializes a `rich` table with some specific translated and styled columns
+    """
+    date_fmt = datetime.now().strftime('%H:%M:%S')
+    table = Table(title=f"Current exchange rates at {date_fmt}", style="yellow")
+
+    table.add_column("Crypto amount", justify="right", no_wrap=True)
+    table.add_column("Profit margin", justify="right", no_wrap=True)
+    table.add_column("Profit percentage", justify="right", no_wrap=True)
+
+    return table
+
+
 def get_rates_diff(purchase: Purchase) -> Tuple[float, float]:
-    """TODO: Add pydoc annotations"""
+    """
+    Given a `purchase` requests the current exchange rates to CoinBase API
+    and computes the current position for given purchase. The current position
+    is a tuple of value and percentage (both for profit or loss)
+
+    Args:
+        purchase (Purchase): The purchase on which determine the current position
+    """
     # Fetches the current exchange rates for the purchased currency
-    response = get(COINBAE_EXCHANGE_API, params={"currency": purchase.crypto_token})
+    response = get(COINBASE_EXCHANGE_API, params={"currency": purchase.crypto_token})
     # Bails out if API returns any kind of error error
     if not response.ok:
         console.print(f"[red]Couldn't find rates for token '{purchase.crypto_token}'[/red]")
@@ -63,35 +93,56 @@ def get_rates_diff(purchase: Purchase) -> Tuple[float, float]:
     return (diff_value, diff_percentage)
 
 
-def live_refresh(config_file: PathLike, timeout_interval: int = 30 * 60) -> None:
-    """TODO: Add pydoc annotations"""
-    while True:
-        hour_fmt = datetime.now().strftime("%H:%M:%S")
-        console.print(f"[yellow]:hourglass: {hour_fmt} Refreshing exhanges rates and diffs[yellow]")
-        # Refreshes the exhange rates diff and waits for the user-defined timeout
-        calc_diff(config_file), sleep(timeout_interval)
+def main(history_path: PathLike, recurrent: bool = True, refresh_interval: int = 30 * 60) -> None:
+    """
+    Fetches the current exchange rates from CoinBase ppublic API and prints on the stdout
+    a comprehensive report table with the current profit/loss margin based on the purchase
+    exchange rates (and costs). When executed in `recurrent` mode, refreshes the quotations 
+    every `refresh_interval` seconds
 
+    Args:
+        history_path (PathLike): The JSON file path with the purchase history
+        recurrent (bool): Flag to execute the script recurrently (just like UNIX cron)
+        refresh_interval (int): An optional user defined refresh interval
 
-def calc_diff(config_file: PathLike) -> None:
-    """TODO: Add pydoc annotations"""
+    Raises:
+        FileNotFoundError: Cannot find purchase history JSON file
+    """
     # Argument checking and validation
-    if not exists(config_file) or not isfile(config_file):
-        raise FileNotFoundError(f"{config_file} doesn't exist or isn't a file")
+    if not exists(history_path) or not isfile(history_path):
+        raise FileNotFoundError(f"{history_path} doesn't exist or isn't a file")
 
-    # Reads JSON file with purchase history and converts it to 'Purchase' dataclass
-    json_content = parse_json(open(config_file, "r", encoding="UTF-8"))
-    purchase_history = [Purchase(**entry) for entry in json_content]
+    while True:
+        # Reads JSON file with purchase history and converts it to 'Purchase' dataclass list
+        json_content = parse_json(open(history_path, "r", encoding="UTF-8"))
+        purchases_history = [Purchase(**entry) for entry in json_content]
 
-    for purchase in purchase_history:
-        value_diff, percentage_diff = get_rates_diff(purchase)
-        # Formats a report template msg with data and print with red or green color based on status
-        msg = REPORT_MSG.format(purchase.amount, purchase.crypto_token, value_diff, percentage_diff)
-        console.print(f"[green]{msg}[/green]" if value_diff > 0 else f"[red]{msg}[/red]")
+        table = init_table()  # Initializes a `rich` table to display profit/loss
+
+        for purchase in purchases_history:
+            # Determines and format the current profit/loss data in tabular format
+            val_diff, perc_diff = get_rates_diff(purchase)
+            margin_fmt = f"{val_diff:.2f} {purchase.fiat_currency}"
+            perc_fmt = f"{perc_diff:.2f}%"
+
+            table.add_row(
+                f"{purchase.amount} {purchase.crypto_token}",
+                f"[green]{margin_fmt}[/green]" if val_diff > 0 else f"[red]{margin_fmt}[/red]",
+                f"[green]{perc_fmt}[/green]" if val_diff > 0 else f"[red]{perc_fmt}[/red]"
+            )
+
+        console.print(table)
+
+        # If we're executing n `recurrent` mode then we pause execution, else we return
+        if recurrent and refresh_interval > 0:
+            sleep(refresh_interval)
+        else:
+            return None
 
 
 if __name__ == "__main__":
     try:
-        Fire({"diff": calc_diff, "live": live_refresh})
+        Fire(main)
     except KeyboardInterrupt:
         console.print("[yellow]Interrupt received, closing now...[/yellow]")
     except Exception:
