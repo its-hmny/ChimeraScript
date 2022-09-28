@@ -103,9 +103,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# Google Drive authentication files
 credentials.json
 client_secrets.json
-token.pickle
+settings.yaml
 
 # Output logs
 logs

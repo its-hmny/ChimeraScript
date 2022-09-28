@@ -10,13 +10,13 @@ one, so in case of conflict the remote versin will overwrite the local one.
 
 Example:
     To only pull from Google Drive, use::
-        $ python3 DriveDiffMerger.py pull ~/GoogleDrive
+        $ python3 DriveDiffMerger.py ../path/to/folder1 ../path/to/folder2 --pull
 
     To only push from local to Google Drive, use::
-        $ python3 DriveDiffMerger.py push ~/GoogleDrive
+        $ python3 DriveDiffMerger.py ../path/to/folder(s) --push
 
     To both pull and then push, use::
-        $ python3 DriveDiffMerger.py sync ~/GoogleDrive
+        $ python3 DriveDiffMerger.py ../path/to/folder(s) --pull --push
 
 
 Copyright 2022 Enea Guidi (hmny). All rights reserved.
@@ -46,8 +46,26 @@ GD_GAPPS_MIMETYPE = [
 
 # Rich console instance for pretty printing on the terminal
 console = Console(record=True)
-# Starts a local webserver that handles OAuth authentication.
-# Injects the auth payload and obtains a proxy to Drive access.
+
+# # Initializes the Google OAuth wrapper
+# gauth = GoogleAuth()
+# # Tries to load the previously saved credentials, if available
+# gauth.LoadCredentialsFile("credentials.json")
+
+# if gauth.credentials is None:
+#     gauth.LocalWebserverAuth()  # Authenticate if credentials are not found
+# elif gauth.access_token_expired:
+#     gauth.Refresh()  # Refresh the access token if it's expired
+# else:
+#     gauth.Authorize()  # Else we proceed with the authorization to Google
+
+# # Save the current credentials to a file
+# gauth.SaveCredentialsFile("credentials.json")
+# # create a local instance of Google Drive
+# gdrive = GoogleDrive(gauth)
+
+# TODO: Test that the refresh token is used automatically
+# TODO: If not go back to the previous implementation and check that one
 gdrive = GoogleDrive(GoogleAuth())
 
 
