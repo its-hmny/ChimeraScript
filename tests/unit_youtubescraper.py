@@ -152,10 +152,3 @@ class TestYouTubeScrapers:
 
         # Since the file shouldn't have been touched the m_time should be the same
         assert new_m_time == m_time, "File has been overwritten"
-
-    def test_captions_flag(self):
-        """
-        Checks that the captions are downloaded and saved, when the flag is provided by the user.
-        Since download_playlist internally uses download_video both method are (indirectly) tested.
-        ! Since at the moment caption download doesn't work on pytube this test is disabled for now
-        """
