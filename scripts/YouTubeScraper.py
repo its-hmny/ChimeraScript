@@ -25,6 +25,7 @@ from datetime import datetime
 from os import PathLike, mkdir
 from os.path import basename, exists, isdir, join
 from posixpath import abspath
+from urllib.error import URLError
 
 from fire import Fire
 from pytube import Playlist
@@ -36,7 +37,7 @@ console = Console(record=True)
 
 
 def download_playlist(
-    url: str, out: PathLike = ".", overwrite: bool = False, captions: bool = False
+    playlist_url: str, out: PathLike = ".", overwrite: bool = False, captions: bool = False
 ):
     """
     Downloads a whole playlist given her YouTube URL. Eventually is possible to
@@ -46,7 +47,7 @@ def download_playlist(
     existing files conflict: either the dest file can be overwritten or the download can be skipped.
 
     Args:
-        url (str): The youTube URL for the given playlist
+        playlist_url (str): The youTube URL for the given playlist
         out (PathLike): The relative or absolute destination folder
         overwrite (bool): Flag to overwrite the previously existent folder/file
         captions (bool): Flag to download captions as .srt files
@@ -57,7 +58,7 @@ def download_playlist(
     if not isdir(abspath(out)):
         raise NotADirectoryError(f"{abspath(out)} is not a directory")
 
-    yt_playlist = Playlist(url)  # Gets a reference to the playlist object
+    yt_playlist = Playlist(playlist_url)  # Gets a reference to the playlist object
     # The out folder will be named as the playlist and be inside "out" path
     out_folder = join(abspath(out), yt_playlist.title)
 
@@ -65,12 +66,29 @@ def download_playlist(
     if not exists(out_folder):
         mkdir(out_folder)
 
-    # For each video in the playlist starts a download with the requested params
-    for url in yt_playlist.video_urls:
-        download_video(url, out_folder, overwrite, captions)
+    # The list/queue keep tracks of the video downloaded for the first time
+    # as well as the ones that failed before (this is needed in order to
+    # determine the behaviour of the 'download_video' function)
+    pl_videos_urls = list([(v, False) for v in yt_playlist.video_urls])
+
+    # Until the queue of video to download is not empty keeps going
+    while len(pl_videos_urls) != 0:
+        url2download, has_failed = pl_videos_urls.pop()
+
+        try:
+            download_video(url2download, out_folder, has_failed or overwrite, captions)
+            console.print(f"[green]Downloaded {url2download} successfully![/green]")
+        # YouTube videos that fails to be downloaded are put back in the queue for later.
+        # This choice has been made in order to avoid the user interaction whenever a download
+        # fails based on minor network error (DNS Resolve, YouTube's Internal Server Errors, ...).
+        except URLError:
+            console.print(f"[red]Failed to download {url2download}, retrying later...[/red]")
+            pl_videos_urls.append((url2download, True))
 
 
-def download_video(url: str, out: PathLike = ".", overwrite: bool = False, captions: bool = False):
+def download_video(
+    video_url: str, out: PathLike = ".", overwrite: bool = False, captions: bool = False
+):
     """
     Downloads a whole video from YouTube given its URL. Eventually is possible to
     specify a resolution (default is 1080p) and enable download of captions as .srt file.
@@ -79,7 +97,7 @@ def download_video(url: str, out: PathLike = ".", overwrite: bool = False, capti
     either the dest file can be overwritten or the download can be skipped.
 
     Args:
-        url (str): The youTube URL for the given video
+        video_url (str): The youTube URL for the given video
         out (PathLike): The relative or absolute destination folder
         overwrite (bool): Flag to overwrite the previously existent folder/file
         captions (bool): Flag to download captions as .srt files
@@ -91,7 +109,7 @@ def download_video(url: str, out: PathLike = ".", overwrite: bool = False, capti
     if not isdir(abspath(out)):
         raise NotADirectoryError(f"{abspath(out)} is not a directory")
 
-    yt_video = Video(url)  # Gets a reference the the YouTube video object
+    yt_video = Video(video_url)  # Gets a reference the the YouTube video object
     # Filters out the desired stream chosen by the user
     stream = yt_video.streams.get_highest_resolution()
     # And downloads it in the requested directory, eventually overwriting the previous
