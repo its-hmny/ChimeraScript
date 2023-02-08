@@ -26,7 +26,7 @@ commonmark==0.9.1; python_full_version >= "3.6.3" and python_full_version < "4.0
 compressed-rtf==1.0.6 \
     --hash=sha256:c1c827f1d124d24608981a56e8b8691eb1f2a69a78ccad6440e7d92fde1781dd
 coverage==6.4.3; python_version >= "3.7"
-cryptography==37.0.4; python_version >= "3.6"
+cryptography==39.0.1; python_version >= "3.6"
 dill==0.3.5.1; python_full_version >= "3.7.2" \
     --hash=sha256:33501d03270bbe410c72639b350e941882a8b0fd55357580fbc873fba0c59302 \
     --hash=sha256:d75e41f3eff1eee599d738e76ba8f4ad98ea229db8b085318aa2b3333a208c86
